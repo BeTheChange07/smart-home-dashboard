@@ -6,8 +6,9 @@ import {
   Camera, Coffee, Plug, Lock,
 } from "lucide-react";
 import type { DeviceState } from "@/hooks/useSmartHome";
+import type { LucideIcon } from "lucide-react";
 
-const iconMap: Record<string, React.FC<{ className?: string; size?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Lightbulb, Thermometer, Warehouse, ShieldCheck, Camera, Coffee, Plug, Lock,
 };
 
