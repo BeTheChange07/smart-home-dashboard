@@ -1,9 +1,8 @@
 {
     "Locks": [
         {
-            "Id": "Front Door",
-            "State": true
-            
+            "Id": "FrontDoor",
+            "State": false
         },
         {
             "Id": "BackDoor",
@@ -20,7 +19,7 @@
     "Lights": [
         {
             "Id": "LivingRoom",
-            "State": true
+            "State": false
         },
         {
             "Id": "Kitchen",
@@ -32,20 +31,28 @@
         }
     ],
     "Thermostat": {
-        "States": ["MakingCoffe", "Idle", "NeedsRefil"],
+        "States": [
+            "MakingCoffe",
+            "Idle",
+            "NeedsRefil"
+        ],
         "State": "Idle"
     },
-    "CoffeeMachine":{
-        "States": ["MakingCoffe", "Idle", "NeedsRefil"],
+    "CoffeeMachine": {
+        "States": [
+            "MakingCoffe",
+            "Idle",
+            "NeedsRefil"
+        ],
         "State": "Idle"
     },
-    "FrontDoorCam":{
+    "FrontDoorCam": {
         "State": false
     },
     "SmartPlugs": [
         {
             "Id": "LivingRoom",
-            "State": true
+            "State": false
         },
         {
             "Id": "Kitchen",
