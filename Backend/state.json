@@ -2,7 +2,7 @@
     "Locks": [
         {
             "Id": "FrontDoor",
-            "State": false
+            "State": true
         },
         {
             "Id": "BackDoor",
@@ -14,7 +14,7 @@
         }
     ],
     "GarageDoor": {
-        "State": true
+        "State": false
     },
     "Lights": [
         {
@@ -31,28 +31,18 @@
         }
     ],
     "Thermostat": {
-        "States": [
-            "MakingCoffe",
-            "Idle",
-            "NeedsRefil"
-        ],
-        "State": "Idle"
+        "State": true
     },
     "CoffeeMachine": {
-        "States": [
-            "MakingCoffe",
-            "Idle",
-            "NeedsRefil"
-        ],
-        "State": "Idle"
+        "State": false
     },
     "FrontDoorCam": {
-        "State": false
+        "State": true
     },
     "SmartPlugs": [
         {
             "Id": "LivingRoom",
-            "State": false
+            "State": true
         },
         {
             "Id": "Kitchen",

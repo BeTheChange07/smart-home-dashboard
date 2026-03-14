@@ -32,12 +32,10 @@
         }
     ],
     "Thermostat": {
-        "States": ["MakingCoffe", "Idle", "NeedsRefil"],
-        "State": "Idle"
+        "State": true
     },
     "CoffeeMachine":{
-        "States": ["MakingCoffe", "Idle", "NeedsRefil"],
-        "State": "Idle"
+        "State": true
     },
     "FrontDoorCam":{
         "State": false

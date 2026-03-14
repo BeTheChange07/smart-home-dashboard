@@ -30,7 +30,17 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 
 ## "/garage"
 
-- Responds with
+- takes no perams
+
+### get
+
+- Get will respond with the status of the named entity
+- true coresponds to the door being closed
+- false coresponds to the door being open
+
+### patch
+
+- Patch will flip the status of the named entity (see above for corespondance of T/F)
 
 ## "/lights/name"
 
@@ -52,11 +62,31 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 
 ## "/coffeMachine"
 
-- Responds with
+- takes no perams
+
+### get
+
+- Get will respond with the status of the named entity
+- true coresponds to the machine being on
+- false coresponds to the machine being off
+
+### patch
+
+- Patch will flip the status of the named entity (see above for corespondance of T/F)
 
 ## "/frontDoorCam"
 
-- Responds with
+- takes no perams
+
+### get
+
+- Get will respond with the status of the named entity
+- true coresponds to the camera detecting motion
+- false coresponds to the camera is idle
+
+### patch
+
+- Patch will flip the status of the named entity (see above for corespondance of T/F)
 
 ## "/smartPlug/name"
 
