@@ -19,7 +19,7 @@
     "Lights": [
         {
             "Id": "LivingRoom",
-            "State": false
+            "State": true
         },
         {
             "Id": "Kitchen",
