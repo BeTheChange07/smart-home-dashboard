@@ -1,0 +1,58 @@
+{
+    "Locks": [
+        {
+            "Id": "FrontDoor",
+            "State": true
+        },
+        {
+            "Id": "BackDoor",
+            "State": true
+        },
+        {
+            "Id": "Garage",
+            "State": true
+        }
+    ],
+    "GarageDoor": {
+        "State": true
+    },
+    "Lights": [
+        {
+            "Id": "LivingRoom",
+            "State": true
+        },
+        {
+            "Id": "Kitchen",
+            "State": true
+        },
+        {
+            "Id": "Bedroom",
+            "State": true
+        }
+    ],
+    "Thermostat": {
+        "State": true,
+        "CurrenTemp": 70,
+        "CurrentTemp": "75"
+    },
+    "CoffeeMachine": {
+        "State": true
+    },
+    "FrontDoorCam": {
+        "State": false
+    },
+    "SmartPlugs": [
+        {
+            "Id": "LivingRoom",
+            "State": true
+        },
+        {
+            "Id": "Kitchen",
+            "State": true
+        },
+        {
+            "Id": "Bedroom",
+            "State": true
+        }
+    ]
+}
