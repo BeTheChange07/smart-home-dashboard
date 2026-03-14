@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv(".env")
 
+import flask
 from flask import Flask, request
 import os
 
@@ -32,7 +33,8 @@ def lights(name):
 
 @app.route("/thermostat", methods=["GET", "PATCH"])
 def thermostat():
-    return Thermostat.Thermostat(request.method)
+    argDict = request.args
+    return Thermostat.Thermostat(request.method, argDict)
 
 
 @app.route("/coffeMachine", methods=["GET", "PATCH"])

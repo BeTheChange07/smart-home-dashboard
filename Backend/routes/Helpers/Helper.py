@@ -40,6 +40,7 @@ def changeStateFileNamedEntity(category: str, name: str):
             json.dump(jsonData, writefile, indent=4)
             writefile.close()
             return str(item["State"])
+        
     file.close()
     json.dump(jsonData, writefile, indent=4)
     writefile.close()
@@ -83,6 +84,8 @@ def changeStateFileSingleBianaryEntity(category: str):
         jsonCatagory["State"] = False
     else:
         jsonCatagory["State"] = True
+
+    file.close()
     json.dump(jsonData, writefile, indent=4)
     writefile.close()
     return str(jsonCatagory["State"])

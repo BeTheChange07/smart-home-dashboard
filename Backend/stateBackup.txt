@@ -32,7 +32,8 @@
         }
     ],
     "Thermostat": {
-        "State": true
+        "State": true,
+        "CurrenTemp": 70
     },
     "CoffeeMachine":{
         "State": true

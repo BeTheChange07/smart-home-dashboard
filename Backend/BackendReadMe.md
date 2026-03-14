@@ -58,7 +58,18 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 
 ## "/thermostat"
 
-- Responds with
+### get
+
+- Get will respond with the status of the thermostat in the format of a string "statusBoolean,currentTemp" so you will need to parse it
+- true coresponds to the thermostat is changing temp
+- false coresponds to the thermostat is idle
+
+### patch
+
+- Patch will update the status and current temp of the thermostat
+- This is done using a url query peram named temp
+- utalize this by sending a patch erquest to baseURL:port/thermostat?temp=desiredTemp
+- This will return a string with "stateOfThermostat,newTemp"
 
 ## "/coffeMachine"
 
