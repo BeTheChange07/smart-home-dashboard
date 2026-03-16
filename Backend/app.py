@@ -2,7 +2,6 @@
 from dotenv import load_dotenv
 load_dotenv(".env")
 
-import flask
 from flask import Flask, request
 import os
 
