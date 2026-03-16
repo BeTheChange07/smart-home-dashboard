@@ -14,7 +14,7 @@
         }
     ],
     "GarageDoor": {
-        "State": true
+        "State": false
     },
     "Lights": [
         {
