@@ -2,7 +2,7 @@
 
 1.  Have NPM installed or install it
 2.  (RECOMENDED) create a .venv enviorment in the root directory of the project
-3.  use requirements.txt too install all requirments using "pip install -r requirements.txt"
+3.  use requirements.txt too install all requirments using "pip install -r requirements.txt" located in the textFiles directory
 
 # Startup instructions
 
