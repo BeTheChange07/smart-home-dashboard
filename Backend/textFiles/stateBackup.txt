@@ -3,7 +3,6 @@
         {
             "Id": "FrontDoor",
             "State": true
-            
         },
         {
             "Id": "BackDoor",
@@ -15,7 +14,7 @@
         }
     ],
     "GarageDoor": {
-        "State": true
+        "State": false
     },
     "Lights": [
         {
@@ -33,12 +32,12 @@
     ],
     "Thermostat": {
         "State": true,
-        "CurrenTemp": 70
+        "CurrentTemp": 75
     },
-    "CoffeeMachine":{
+    "CoffeeMachine": {
         "State": true
     },
-    "FrontDoorCam":{
+    "FrontDoorCam": {
         "State": false
     },
     "SmartPlugs": [

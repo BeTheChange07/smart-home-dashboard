@@ -9,42 +9,36 @@ lock = FileLock("./textFiles/locks/state.json.lock")
 def Thermostat(method, arguments):
     if(method == "GET"):
         with lock:
-            file = open("state.json", 'r')
-            jsonData = json.load(file)
+            with open("state.json", 'r') as file:
+                jsonData = json.load(file)
             jsonCatagory = jsonData["Thermostat"]
-            file.close()
             try:
                 stateStr = str(jsonCatagory["State"])
-                tempStr = str(jsonCatagory["CurrenTemp"])
-
+                tempStr = str(jsonCatagory["CurrentTemp"])
             except:
                 return "Name mismatch"
-
             return stateStr + "," + tempStr
+
     elif(method == "PATCH"):
         with lock:
-            file = open("state.json", 'r')
-            jsonData = json.load(file)
-            writefile = open("state.json", "w")
+            with open("state.json", 'r') as file:
+                jsonData = json.load(file)
             try:
                 jsonCatagory = jsonData["Thermostat"]
             except:
                 return "Name mismatch"
-            
-            #currently commented for use in second itteration
-            # if(itemBool):
-            #     jsonCatagory["State"] = False
-            # else:
-            #     jsonCatagory["State"] = True
+
+            # Toggle the state
+            jsonCatagory["State"] = not jsonCatagory["State"]
+
+            # Update temp if provided, otherwise keep current
             try:
                 jsonCatagory["CurrentTemp"] = arguments["temp"]
-            except: 
-                return "Invalid Arguments"
+            except:
+                pass  # no temp argument is fine, just toggle state
 
-            file.close()
-            json.dump(jsonData, writefile, indent=4)
-            writefile.close()
+            with open("state.json", "w") as writefile:
+                json.dump(jsonData, writefile, indent=4)
             return str(jsonCatagory["State"]) + "," + str(jsonCatagory["CurrentTemp"])
-
 
     return "Please use a supported method"

@@ -35,8 +35,8 @@ function DeviceCard({ device, onToggle, onSelect }: Props) {
   const isAlert = device.detail === "Motion Detected" || (device.type === "garage" && device.state);
 
   // Confidence LED color
-  const confLed = device.confidence > 0.9 ? "bg-success" : device.confidence > 0.7 ? "bg-warning" : "bg-destructive";
-  const confGlow = device.confidence > 0.9 ? "var(--glow-success)" : device.confidence > 0.7 ? "var(--glow-warning)" : "var(--glow-destructive)";
+  //const confLed = device.confidence > 0.9 ? "bg-success" : device.confidence > 0.7 ? "bg-warning" : "bg-destructive";
+  //const confGlow = device.confidence > 0.9 ? "var(--glow-success)" : device.confidence > 0.7 ? "var(--glow-warning)" : "var(--glow-destructive)";
 
   return (
     <motion.div
@@ -53,11 +53,15 @@ function DeviceCard({ device, onToggle, onSelect }: Props) {
           <Icon className={color} size={20} />
         </div>
         <div className="flex items-center gap-2">
+
           {/* Confidence LED */}
+          {/*
           <div className="flex flex-col items-center gap-0.5" title={`${Math.round(device.confidence * 100)}% confidence`}>
             <span className={`w-2 h-2 rounded-full ${confLed}`} style={{ boxShadow: confGlow }} />
             <span className="text-[8px] font-mono text-muted-foreground">{Math.round(device.confidence * 100)}%</span>
           </div>
+          */}
+
           <Switch
             checked={device.state}
             onCheckedChange={(e) => {

@@ -33,24 +33,14 @@ def checkStateFileNamedEntity(category: str, name: str):
 #name: name of the specific item you want
 def changeStateFileNamedEntity(category: str, name: str):
     with lock:
-        file = open("state.json", 'r')
-        jsonData = json.load(file)
-        writefile = open("state.json", "w")
+        with open("state.json", 'r') as file:
+            jsonData = json.load(file)
         for item in jsonData[category]:
-            file.close()
             if(item["Id"] == name):
-                itemBool = item["State"]
-                if(itemBool):
-                    item["State"] = False
-                else:
-                    item["State"] = True
-                json.dump(jsonData, writefile, indent=4)
-                writefile.close()
+                item["State"] = not item["State"]
+                with open("state.json", "w") as writefile:
+                    json.dump(jsonData, writefile, indent=4)
                 return str(item["State"])
-            
-        file.close()
-        json.dump(jsonData, writefile, indent=4)
-        writefile.close()
         return "name not found"
 
 
@@ -60,16 +50,20 @@ def changeStateFileNamedEntity(category: str, name: str):
 
 #inputs:
 # category: the catagory of objects name as a string (anything but "Lights", "smartPlug", "Locks")
-def checkStateFileSingleBianaryEntity(category: str):
+def changeStateFileSingleBianaryEntity(category: str):
     with lock:
-        file = open("state.json", 'r')
-        jsonData = json.load(file)
-        jsonCatagory = jsonData[category]
-        file.close()
+        with open("state.json", 'r') as file:
+            jsonData = json.load(file)
         try:
-            return str(jsonCatagory["State"])
+            jsonCatagory = jsonData[category]
+            itemBool = jsonCatagory["State"]
         except:
             return "Name mismatch"
+
+        jsonCatagory["State"] = not itemBool
+        with open("state.json", "w") as writefile:
+            json.dump(jsonData, writefile, indent=4)
+        return str(jsonCatagory["State"])
 
 #this function takes the title of a JSON object of the specific
 #object that you are looking to update. It will either return the new state of
