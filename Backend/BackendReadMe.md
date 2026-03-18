@@ -27,6 +27,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
+  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/locks/name?Reason=message
 
 ## "/garage"
 
@@ -41,6 +42,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
+  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/garage?Reason=message
 
 ## "/lights/name"
 
@@ -55,6 +57,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
+  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/lights/name?Reason=message
 
 ## "/thermostat"
 
@@ -71,7 +74,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 - utalize this by sending a patch erquest to baseURL:port/thermostat?temp=desiredTemp
 - This will return a string with "stateOfThermostat,newTemp"
 
-## "/coffeMachine"
+## "/coffeeMachine"
 
 - takes no perams
 
@@ -84,6 +87,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
+  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/coffeeMachine?Reason=message
 
 ## "/frontDoorCam"
 
@@ -98,6 +102,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
+  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/frontDoorCam?Reason=message
 
 ## "/smartPlug/name"
 
@@ -112,3 +117,16 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
+  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/smartPlug/name?Reason=message
+
+## "/state"
+
+### get
+
+- Returns the entire state.json file as json
+
+## "/events"
+
+### get
+
+- returns the last 50 events from the events.json

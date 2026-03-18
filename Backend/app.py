@@ -8,7 +8,7 @@ import json
 from flask_cors import CORS
 
 #importing functions from respective file
-from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, FrontDoorCam, SmarPlug 
+from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, FrontDoorCam, SmarPlug, Events
 
 
 
@@ -22,15 +22,18 @@ def working():
 
 @app.route("/locks/<name>", methods=["GET", "PATCH"])
 def locks(name):
-    return Locks.Locks(request.method, name)
+    argDict = request.args
+    return Locks.Locks(request.method, name, argDict)
 
 @app.route("/garage", methods=["GET", "PATCH"])
 def garage():
-    return Garage.Garage(request.method)
+    argDict = request.args
+    return Garage.Garage(request.method, argDict)
 
 @app.route("/lights/<name>", methods=["GET", "PATCH"])
 def lights(name):
-    return Lights.Lights(request.method, name)
+    argDict = request.args
+    return Lights.Lights(request.method, name, argDict)
 
 @app.route("/thermostat", methods=["GET", "PATCH"])
 def thermostat():
@@ -38,18 +41,21 @@ def thermostat():
     return Thermostat.Thermostat(request.method, argDict)
 
 
-@app.route("/coffeMachine", methods=["GET", "PATCH"])
+@app.route("/coffeeMachine", methods=["GET", "PATCH"])
 def coffeMachine():
-    return CoffeMachine.CoffeMachine(request.method)
+    argDict = request.args
+    return CoffeMachine.CoffeMachine(request.method, argDict)
 
 
 @app.route("/frontDoorCam", methods=["GET", "PATCH"])
 def frontDoorCam():
-    return FrontDoorCam.FrontDoorCam(request.method)
+    argDict = request.args
+    return FrontDoorCam.FrontDoorCam(request.method, argDict)
 
 @app.route("/smartPlug/<name>", methods=["GET", "PATCH"])
 def smartPlug(name):
-    return SmarPlug.SmartPlug(request.method, name)
+    argDict = request.args
+    return SmarPlug.SmartPlug(request.method, name, argDict)
 
 #get all states of the state.json
 @app.route("/state", methods=["GET"])
@@ -57,34 +63,10 @@ def get_full_state():
     with open("state.json", "r") as f:
         return json.load(f)
 
- #######################################
- #Log the events in events.json.
- #######################################
-@app.route("/events", methods=["GET"])
-def get_events():
-    try:
-        with open("events.json", "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return []
+@app.route("/events", methods=["GET", "POST"])
+def events():
+    return Events.Events(request.method)
 
-@app.route("/events", methods=["POST"])
-def add_event():
-    event = request.get_json()
-    try:
-        with open("events.json", "r") as f:
-            events = json.load(f)
-    except FileNotFoundError:
-        events = []
-
-    events.insert(0, event)
-    events = events[:50]  # keep max 50
-
-    with open("events.json", "w") as f:
-        json.dump(events, f, indent=4)
-
-    return event
-###########################################
 
 
 

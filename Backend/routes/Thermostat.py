@@ -6,7 +6,7 @@ from filelock import Timeout, FileLock
 #write to it if accessed too many times
 lock = FileLock("./textFiles/locks/state.json.lock")
 
-def Thermostat(method, arguments):
+def Thermostat(method, argsDict):
     if(method == "GET"):
         with lock:
             with open("state.json", 'r') as file:
@@ -33,7 +33,7 @@ def Thermostat(method, arguments):
 
             # Update temp if provided, otherwise keep current
             try:
-                jsonCatagory["CurrentTemp"] = arguments["temp"]
+                jsonCatagory["CurrentTemp"] = argsDict["temp"]
             except:
                 pass  # no temp argument is fine, just toggle state
 
