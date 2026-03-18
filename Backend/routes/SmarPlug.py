@@ -5,6 +5,6 @@ def SmartPlug(method, name, argsDict):
         return helper.checkStateFileNamedEntity("SmartPlugs", name)
     
     elif(method == "PATCH"):
-        return helper.changeStateFileNamedEntity("SmartPlugs", name, argsDict["Reason"])
+        return helper.changeStateFileNamedEntity("SmartPlugs", name, argsDict)
 
     return "Please use a supported method"

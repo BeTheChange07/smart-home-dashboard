@@ -32,7 +32,7 @@ def checkStateFileNamedEntity(category: str, name: str):
 #inputs:
 # category: the catagory of objects name as a string (ie "Lights", "smartPlug", "Locks")
 #name: name of the specific item you want
-def changeStateFileNamedEntity(category: str, name: str, reason: str):
+def changeStateFileNamedEntity(category: str, name: str, argsDict):
     with stateLock:
         with open("state.json", 'r') as file:
             jsonData = json.load(file)
@@ -42,7 +42,11 @@ def changeStateFileNamedEntity(category: str, name: str, reason: str):
                 with open("state.json", "w") as writefile:
                     json.dump(jsonData, writefile, indent=4)
 
-                createLogInstance(reason, (category + '-' + item["Id"]))
+                try:
+                    createLogInstance(argsDict["Reason"], (category + '-' + item["Id"]))
+                except:
+                    createLogInstance("No Reason Provided", (category + '-' + item["Id"]))
+
 
                 return str(item["State"])
         return "name not found"
@@ -73,7 +77,7 @@ def checkStateFileSingleBianaryEntity(category: str):
 #inputs:
 # category: the catagory of objects name as a string (anyhting but "Lights", "smartPlug", "Locks")
 
-def changeStateFileSingleBianaryEntity(category: str, reason: str):
+def changeStateFileSingleBianaryEntity(category: str, argsDict):
     with stateLock:
         with open("state.json", 'r') as file:
             jsonData = json.load(file)
@@ -87,7 +91,10 @@ def changeStateFileSingleBianaryEntity(category: str, reason: str):
         with open("state.json", "w") as writefile:
             json.dump(jsonData, writefile, indent=4)
 
-        createLogInstance(reason, category)
+        try:
+            createLogInstance(argsDict["Reason"], category)
+        except:
+            createLogInstance("No Reason Provided", category)
 
         return str(jsonCatagory["State"])
     

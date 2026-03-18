@@ -7,6 +7,6 @@ def Lights(method, name, argsDict):
         return helper.checkStateFileNamedEntity("Lights", name)
 
     elif(method == "PATCH"):
-        return helper.changeStateFileNamedEntity("Lights", name, argsDict["Reason"])
+        return helper.changeStateFileNamedEntity("Lights", name, argsDict)
 
     return "Please use a supported method"

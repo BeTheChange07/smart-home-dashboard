@@ -5,7 +5,7 @@ def Garage(method, argsDict):
     if(method == "GET"):
         return helper.checkStateFileSingleBianaryEntity("GarageDoor")
     elif(method == "PATCH"):
-        return helper.changeStateFileSingleBianaryEntity("GarageDoor", argsDict["Reason"])
+        return helper.changeStateFileSingleBianaryEntity("GarageDoor", argsDict)
 
 
     return "Please use a supported method"

@@ -37,6 +37,12 @@ def Thermostat(method, argsDict):
             except:
                 pass  # no temp argument is fine, just toggle state
 
+            try:
+                helper.createLogInstance(argsDict["Reason"], "Thermostat")
+            except:
+                helper.createLogInstance("No reason given", "Thermostat")
+
+
             with open("state.json", "w") as writefile:
                 json.dump(jsonData, writefile, indent=4)
             return str(jsonCatagory["State"]) + "," + str(jsonCatagory["CurrentTemp"])

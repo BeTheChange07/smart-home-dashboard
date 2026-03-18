@@ -7,7 +7,7 @@ def Locks(method, name, argsDict):
 
 
     elif(method == "PATCH"):
-        return helper.changeStateFileNamedEntity("Locks", name, argsDict["Reason"])
+        return helper.changeStateFileNamedEntity("Locks", name, argsDict)
 
 
     return "Please use a supported method"
