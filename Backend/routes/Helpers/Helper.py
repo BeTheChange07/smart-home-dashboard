@@ -1,10 +1,11 @@
 import json
 from filelock import Timeout, FileLock
+import time, datetime, uuid
 
 #this is the lockfile definition to ensure we dont corrupt the file trying to 
 #write to it if accessed too many times
-lock = FileLock("./textFiles/locks/state.json.lock")
-
+stateLock = FileLock("./textFiles/locks/state.json.lock")
+eventLock = FileLock("./textFiles/locks/event.json.lock")
 
 #this function takes the title af the JSON object and the name of the specific
 #object that you are looking for. It will either return the object state or return an 
@@ -14,7 +15,7 @@ lock = FileLock("./textFiles/locks/state.json.lock")
 # category: the catagory of objects name as a string (ie "Lights", "smartPlug", "Locks")
 #name: name of the specific item you want
 def checkStateFileNamedEntity(category: str, name: str):
-    with lock:
+    with stateLock:
         file = open("state.json", 'r')
         jsonData = json.load(file)
         for item in jsonData[category]:
@@ -31,8 +32,8 @@ def checkStateFileNamedEntity(category: str, name: str):
 #inputs:
 # category: the catagory of objects name as a string (ie "Lights", "smartPlug", "Locks")
 #name: name of the specific item you want
-def changeStateFileNamedEntity(category: str, name: str):
-    with lock:
+def changeStateFileNamedEntity(category: str, name: str, reason: str):
+    with stateLock:
         with open("state.json", 'r') as file:
             jsonData = json.load(file)
         for item in jsonData[category]:
@@ -40,6 +41,9 @@ def changeStateFileNamedEntity(category: str, name: str):
                 item["State"] = not item["State"]
                 with open("state.json", "w") as writefile:
                     json.dump(jsonData, writefile, indent=4)
+
+                createLogInstance(reason, (category + '-' + item["Id"]))
+
                 return str(item["State"])
         return "name not found"
 
@@ -50,8 +54,27 @@ def changeStateFileNamedEntity(category: str, name: str):
 
 #inputs:
 # category: the catagory of objects name as a string (anything but "Lights", "smartPlug", "Locks")
-def changeStateFileSingleBianaryEntity(category: str):
-    with lock:
+def checkStateFileSingleBianaryEntity(category: str):
+    with stateLock:
+        file = open("state.json", 'r')
+        jsonData = json.load(file)
+        try:
+            jsonCatagory = jsonData[category]
+            return str(jsonCatagory["State"])
+        except:
+            return "Name Mismatch"
+
+        
+
+#this function takes the title of a JSON object of the specific
+#object that you are looking to update. It will either return the new state of
+#of the object or it will return an error message
+
+#inputs:
+# category: the catagory of objects name as a string (anyhting but "Lights", "smartPlug", "Locks")
+
+def changeStateFileSingleBianaryEntity(category: str, reason: str):
+    with stateLock:
         with open("state.json", 'r') as file:
             jsonData = json.load(file)
         try:
@@ -63,32 +86,29 @@ def changeStateFileSingleBianaryEntity(category: str):
         jsonCatagory["State"] = not itemBool
         with open("state.json", "w") as writefile:
             json.dump(jsonData, writefile, indent=4)
+
+        createLogInstance(reason, category)
+
         return str(jsonCatagory["State"])
-
-#this function takes the title of a JSON object of the specific
-#object that you are looking to update. It will either return the new state of
-#of the object or it will return an error message
-
-#inputs:
-# category: the catagory of objects name as a string (anyhting but "Lights", "smartPlug", "Locks")
-def changeStateFileSingleBianaryEntity(category: str):
-    with lock:
-        file = open("state.json", 'r')
-        jsonData = json.load(file)
-        writefile = open("state.json", "w")
-        try:
-            jsonCatagory = jsonData[category]
-            itemBool = jsonCatagory["State"]
-        except:
-            return "Name mismatch"
     
 
-        if(itemBool):
-            jsonCatagory["State"] = False
-        else:
-            jsonCatagory["State"] = True
+#this function creates a log instantce for a event
+def createLogInstance(reason, deviceId):
+    with eventLock:
+        with open("events.json", "r") as f:
+            events = json.load(f)
 
-        file.close()
-        json.dump(jsonData, writefile, indent=4)
-        writefile.close()
-        return str(jsonCatagory["State"])
+
+
+        event = {
+            "id": str(uuid.uuid1()),
+            "time": datetime.datetime.now().strftime("%B %d %Y %H %M %S"),
+            "message": reason,
+            "deviceID": deviceId
+        }
+
+        events.insert(0, json.dumps(event))
+        events = events[:50]  # keep max 50
+
+        with open("events.json", "w") as f:
+            json.dump(events, f, indent=4)
