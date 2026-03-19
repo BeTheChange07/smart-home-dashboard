@@ -186,17 +186,8 @@ export function useSmartHome() {
   // This will now log events to the event.json file in the backend.
   const addEvent = useCallback((message: string, deviceId?: string, explanation?: Explanation) => {
     const event = { id: uid(), time: now(), message, deviceId, explanation };
-
-    // Update local state immediately so the UI is responsive
     setEvents(prev => [event, ...prev].slice(0, 50));
     setLastUpdate(now());
-
-    // Also save to the backend
-    fetch("http://localhost:5000/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(event),
-    }).catch(err => console.error("Failed to log event:", err));
   }, []);
 
 
@@ -343,9 +334,34 @@ export function useSmartHome() {
 
       // Replace the empty devices array with everything we built
       setDevices(built);
+
+      // fetch events from back end
+      try {
+        const eventsRes = await fetch("http://localhost:5000/events");
+        const savedEvents = await eventsRes.json();
+        if (savedEvents.length > 0) {
+          const parsed = savedEvents.map((e: string | Record<string, unknown>) =>
+              typeof e === "string" ? JSON.parse(e) : e
+          );
+          const mapped = parsed.map((e: Record<string, unknown>) => ({
+            id: e.id as string,
+            time: e.time as string,
+            message: e.message as string,
+            deviceId: (e.deviceID ?? e.deviceId) as string | undefined,
+          }));
+          setEvents(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load events:", err);
+      }
+
+
+
     } catch (err) {
       console.error("Failed to fetch backend state:", err);
     }
+
+
   }, []);
 
 

@@ -119,7 +119,7 @@ def createLogInstance(reason, deviceId):
             "deviceID": deviceId
         }
 
-        events.insert(0, json.dumps(event))
+        events.insert(0, event)
         events = events[:50]  # keep max 50
 
         with open("events.json", "w") as f:
