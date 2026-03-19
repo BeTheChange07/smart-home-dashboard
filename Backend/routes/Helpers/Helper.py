@@ -2,6 +2,8 @@ import json
 from filelock import Timeout, FileLock
 import time, datetime, uuid
 
+from routes.Helpers.Discord import sendDiscordNotification
+
 #this is the lockfile definition to ensure we dont corrupt the file trying to 
 #write to it if accessed too many times
 stateLock = FileLock("./textFiles/locks/state.json.lock")
@@ -99,17 +101,20 @@ def changeStateFileSingleBianaryEntity(category: str, argsDict):
         return str(jsonCatagory["State"])
     
 
-#this function creates a log instantce for a event
+#this function creates a log instance for a event
 def createLogInstance(reason, deviceId):
     with eventLock:
         with open("events.json", "r") as f:
             events = json.load(f)
 
 
+        timestamp = datetime.datetime.now().strftime("%B %d %Y %H %M %S")
+
+
 
         event = {
             "id": str(uuid.uuid1()),
-            "time": datetime.datetime.now().strftime("%B %d %Y %H %M %S"),
+            "time": timestamp,
             "message": reason,
             "deviceID": deviceId
         }
@@ -119,3 +124,7 @@ def createLogInstance(reason, deviceId):
 
         with open("events.json", "w") as f:
             json.dump(events, f, indent=4)
+
+    # send discord notification
+    sendDiscordNotification(reason, deviceId, timestamp)
+

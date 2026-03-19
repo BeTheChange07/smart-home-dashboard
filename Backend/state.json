@@ -10,7 +10,7 @@
         },
         {
             "Id": "Garage",
-            "State": true
+            "State": false
         }
     ],
     "GarageDoor": {
@@ -31,7 +31,7 @@
         }
     ],
     "Thermostat": {
-        "State": true,
+        "State": false,
         "CurrentTemp": 75
     },
     "CoffeeMachine": {
@@ -47,7 +47,7 @@
         },
         {
             "Id": "Kitchen",
-            "State": true
+            "State": false
         },
         {
             "Id": "Bedroom",
