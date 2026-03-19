@@ -394,7 +394,7 @@ export function useSmartHome() {
       url = "http://localhost:5000/garage";
 
     } else if (deviceId === "coffee") {
-      url = "http://localhost:5000/coffeMachine";
+      url = "http://localhost:5000/coffeeMachine";
 
     } else if (deviceId === "camera") {
       url = "http://localhost:5000/frontDoorCam";

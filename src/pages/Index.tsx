@@ -16,7 +16,7 @@ import ReplayControls from "@/components/ReplayControls";
 */
 
 
-const Index = () => {
+const Index = ({ username }: { username: string }) => {
   const sm = useSmartHome();
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
 
@@ -26,13 +26,25 @@ const Index = () => {
       <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8 max-w-[1440px] mx-auto">
           {/* Header */}
           <header className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-primary/10">
-                  <LayoutDashboard className="text-primary" size={24}/>
-              </div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                    <LayoutDashboard className="text-primary" size={24} />
+                </div>
               <div>
                   <h1 className="text-xl font-bold text-foreground tracking-tight">Smart Home Control Center</h1>
-                  <p className="text-xs text-muted-foreground">Monitor and control your connected devices</p>
+                  <p className="text-xs text-muted-foreground"> Welcome, {username} 👋</p>
               </div>
+            </div>
+            {/* Logout Button */}
+            <button
+                onClick={() => {
+                localStorage.removeItem("user");
+                window.location.href = "/login";
+                }}
+                className="text-sm px-3 py-1 rounded bg-red-500 text-white"
+            >
+                Logout
+            </button>
           </header>
 
 
