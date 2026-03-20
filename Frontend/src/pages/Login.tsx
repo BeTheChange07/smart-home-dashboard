@@ -6,10 +6,12 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
 
+  const isAdmin = username.toLowerCase() === "admin";
+
   const handleLogin = () => {
     if (username.trim() !== "") {
       onLogin(username);
-      navigate("/");
+      navigate(isAdmin ? "/admin" : "/");
     }
   };
 
@@ -27,8 +29,9 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
           <h1 className="text-2xl font-bold text-foreground">
             Smart Home
           </h1>
+
           <p className="text-sm text-muted-foreground">
-            Control Center Login
+            {isAdmin ? "Admin Login" : "Control Center Login"}
           </p>
         </div>
 
@@ -41,12 +44,16 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
           className="w-full p-2.5 rounded-md bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary mb-4"
         />
 
-        {/* Button with glow */}
+        {/* Button */}
         <button
           onClick={handleLogin}
-          className="w-full py-2.5 rounded-md bg-primary text-primary-foreground font-medium hover:opacity-90 transition shadow-[var(--glow-primary)]"
+          className={`w-full py-2.5 rounded-md font-medium transition shadow-[var(--glow-primary)] ${
+            isAdmin
+              ? "bg-red-500 text-white hover:opacity-90"
+              : "bg-primary text-primary-foreground hover:opacity-90"
+          }`}
         >
-          Login
+          {isAdmin ? "Login as Admin" : "Login"}
         </button>
       </div>
     </div>

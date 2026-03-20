@@ -23,7 +23,7 @@
         },
         {
             "Id": "Kitchen",
-            "State": true
+            "State": false
         },
         {
             "Id": "Bedroom",
@@ -38,7 +38,7 @@
         "State": false
     },
     "FrontDoorCam": {
-        "State": true
+        "State": false
     },
     "SmartPlugs": [
         {
