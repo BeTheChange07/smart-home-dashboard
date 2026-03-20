@@ -41,13 +41,14 @@ def changeStateFileNamedEntity(category: str, name: str, argsDict):
         for item in jsonData[category]:
             if(item["Id"] == name):
                 item["State"] = not item["State"]
+                itemPrio = item["Prio"]
                 with open("state.json", "w") as writefile:
                     json.dump(jsonData, writefile, indent=4)
 
                 try:
-                    createLogInstance(argsDict["Reason"], (category + '-' + item["Id"]))
+                    createLogInstance(argsDict["Reason"], (category + '-' + item["Id"]), itemPrio)
                 except:
-                    createLogInstance("No Reason Provided", (category + '-' + item["Id"]))
+                    createLogInstance("No Reason Provided", (category + '-' + item["Id"]), itemPrio)
 
 
                 return str(item["State"])
@@ -86,6 +87,7 @@ def changeStateFileSingleBianaryEntity(category: str, argsDict):
         try:
             jsonCatagory = jsonData[category]
             itemBool = jsonCatagory["State"]
+            itemPrio = jsonCatagory["Prio"]
         except:
             return "Name mismatch"
 
@@ -94,15 +96,15 @@ def changeStateFileSingleBianaryEntity(category: str, argsDict):
             json.dump(jsonData, writefile, indent=4)
 
         try:
-            createLogInstance(argsDict["Reason"], category)
+            createLogInstance(argsDict["Reason"], category, itemPrio)
         except:
-            createLogInstance("No Reason Provided", category)
+            createLogInstance("No Reason Provided", category, itemPrio)
 
         return str(jsonCatagory["State"])
     
 
 #this function creates a log instance for a event
-def createLogInstance(reason, deviceId):
+def createLogInstance(reason, deviceId, priority):
     with eventLock:
         with open("events.json", "r") as f:
             events = json.load(f)
@@ -125,6 +127,15 @@ def createLogInstance(reason, deviceId):
         with open("events.json", "w") as f:
             json.dump(events, f, indent=4)
 
-    # send discord notification
-    sendDiscordNotification(reason, deviceId, timestamp)
+    # send discord notification for prio 2 and batches lies for prio 1 does nothing for prio 0
+    match priority:  
+        case 1:
+            createBatchLine(reason, deviceId, timestamp)
+        case 2:
+            sendDiscordNotification(reason, deviceId, timestamp)
 
+
+def createBatchLine(reason, deviceID, timestamp):
+    file = open("./textFiles/batchMessage.txt", 'a')
+    file.write(reason + "," + deviceID + "," + timestamp + "\n")
+    file.close()

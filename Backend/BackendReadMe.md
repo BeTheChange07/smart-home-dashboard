@@ -8,6 +8,13 @@
 
 For testing just use the "flask run" command in the "Backend" Directory to start up the server. It will default to http://127.0.0.1:5000
 
+# Priority messaging
+
+- currently priority messaging is implemented on a per device basis. Each device in state.json is given a priority of 0-2.0 Being lowest and 2 being highest.
+- 0 priority are not sent as discord messages but are still logged
+- 1 priority are batched into batch.txt and sent all at once to the discord
+- 2 priority is sent immediatly to the discord
+
 # Currently Implemented Routes
 
 ## "/"

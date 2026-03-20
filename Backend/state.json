@@ -2,56 +2,69 @@
     "Locks": [
         {
             "Id": "FrontDoor",
-            "State": false
+            "State": true,
+            "Prio": 2
         },
         {
             "Id": "BackDoor",
-            "State": false
+            "State": true,
+            "Prio": 2
         },
         {
             "Id": "Garage",
-            "State": false
+            "State": true,
+            "Prio": 2
         }
     ],
     "GarageDoor": {
-        "State": true
+        "State": true,
+        "Prio": 2
     },
     "Lights": [
         {
             "Id": "LivingRoom",
-            "State": true
+            "State": true,
+            "Prio": 2
         },
         {
             "Id": "Kitchen",
-            "State": false
+            "State": true,
+            "Prio": 2
         },
         {
             "Id": "Bedroom",
-            "State": false
+            "State": true,
+            "Prio": 2
         }
     ],
     "Thermostat": {
-        "State": false,
-        "CurrentTemp": 75
+        "State": true,
+        "CurrentTemp": 75,
+        "Prio": 2
     },
     "CoffeeMachine": {
-        "State": false
+        "State": true,
+        "Prio": 2
     },
     "FrontDoorCam": {
-        "State": true
+        "State": true,
+        "Prio": 2
     },
     "SmartPlugs": [
         {
             "Id": "LivingRoom",
-            "State": false
+            "State": true,
+            "Prio": 2
         },
         {
             "Id": "Kitchen",
-            "State": false
+            "State": true,
+            "Prio": 2
         },
         {
             "Id": "Bedroom",
-            "State": true
+            "State": true,
+            "Prio": 2
         }
     ]
 }
