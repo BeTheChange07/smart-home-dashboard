@@ -16,7 +16,7 @@ import ReplayControls from "@/components/ReplayControls";
 */
 
 
-const Index = ({ username }: { username: string }) => {
+const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: boolean }) => {
   const sm = useSmartHome();
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ const Index = ({ username }: { username: string }) => {
   return (
       <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8 max-w-[1440px] mx-auto">
           {/* Header */}
-          <header className="flex items-center gap-3 mb-6">
+          <header className="flex items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
                     <LayoutDashboard className="text-primary" size={24} />
@@ -33,13 +33,16 @@ const Index = ({ username }: { username: string }) => {
               <div>
                   <h1 className="text-xl font-bold text-foreground tracking-tight">Smart Home Control Center</h1>
                   <p className="text-xs text-muted-foreground"> Welcome, {username} 👋</p>
+                  {isAdmin && (<p className="text-xs text-red-500 font-semibold"> ADMIN ACCESS </p>)}
               </div>
             </div>
+
             {/* Logout Button */}
             <button
                 onClick={() => {
-                localStorage.removeItem("user");
-                window.location.href = "/login";
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("role");
+                    window.location.href = "/login";
                 }}
                 className="text-sm px-3 py-1 rounded bg-red-500 text-white"
             >
