@@ -22,39 +22,39 @@ def working():
 
 @app.route("/locks/<name>", methods=["GET", "PATCH"])
 def locks(name):
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return Locks.Locks(request.method, name, argDict)
 
 @app.route("/garage", methods=["GET", "PATCH"])
 def garage():
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return Garage.Garage(request.method, argDict)
 
 @app.route("/lights/<name>", methods=["GET", "PATCH"])
 def lights(name):
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return Lights.Lights(request.method, name, argDict)
 
 @app.route("/thermostat", methods=["GET", "PATCH"])
 def thermostat():
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return Thermostat.Thermostat(request.method, argDict)
 
 
 @app.route("/coffeeMachine", methods=["GET", "PATCH"])
 def coffeMachine():
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return CoffeMachine.CoffeMachine(request.method, argDict)
 
 
 @app.route("/frontDoorCam", methods=["GET", "PATCH"])
 def frontDoorCam():
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return FrontDoorCam.FrontDoorCam(request.method, argDict)
 
 @app.route("/smartPlug/<name>", methods=["GET", "PATCH"])
 def smartPlug(name):
-    argDict = request.args
+    argDict = request.get_json() if request.method == "PATCH" else request.args
     return SmarPlug.SmartPlug(request.method, name, argDict)
 
 #get all states of the state.json
@@ -63,7 +63,7 @@ def get_full_state():
     with open("state.json", "r") as f:
         return json.load(f)
 
-@app.route("/events", methods=["GET", "POST"])
+@app.route("/events", methods=["GET", "PATCH"])
 def events():
     return Events.Events(request.method)
 
@@ -72,6 +72,4 @@ def events():
 
 #dont worry about this its only for production
 if __name__ == '__main__':
-    app.run(port=os.getenv("PORT"))
-
-
+    app.run(host="0.0.0.0", port=os.getenv("PORT"))

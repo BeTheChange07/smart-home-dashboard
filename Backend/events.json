@@ -1,22 +1,302 @@
 [
-    "{\"id\": \"0af64384-23b4-11f1-862f-e865389374d4\", \"time\": \"March 19 2026 11 52 41\", \"message\": \"No Reason Provided\", \"deviceID\": \"SmartPlugs-Kitchen\"}",
-    "{\"id\": \"0a518e37-23b4-11f1-9051-e865389374d4\", \"time\": \"March 19 2026 11 52 39\", \"message\": \"No reason given\", \"deviceID\": \"Thermostat\"}",
-    "{\"id\": \"09e51818-23b4-11f1-9982-e865389374d4\", \"time\": \"March 19 2026 11 52 39\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-Garage\"}",
-    "{\"id\": \"083c4ab8-23b4-11f1-a53e-e865389374d4\", \"time\": \"March 19 2026 11 52 36\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-FrontDoor\"}",
-    "{\"id\": \"07bb84fd-23b4-11f1-a257-e865389374d4\", \"time\": \"March 19 2026 11 52 35\", \"message\": \"No Reason Provided\", \"deviceID\": \"Lights-Kitchen\"}",
-    "{\"id\": \"072ae9ef-23b4-11f1-a6e9-e865389374d4\", \"time\": \"March 19 2026 11 52 34\", \"message\": \"No Reason Provided\", \"deviceID\": \"Lights-Bedroom\"}",
-    "{\"id\": \"06e19937-23b4-11f1-b011-e865389374d4\", \"time\": \"March 19 2026 11 52 34\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-BackDoor\"}",
-    "{\"id\": \"05d1c052-23b4-11f1-928d-e865389374d4\", \"time\": \"March 19 2026 11 52 32\", \"message\": \"No Reason Provided\", \"deviceID\": \"SmartPlugs-LivingRoom\"}",
-    "{\"id\": \"04d65e88-23b4-11f1-8d1d-e865389374d4\", \"time\": \"March 19 2026 11 52 30\", \"message\": \"No Reason Provided\", \"deviceID\": \"SmartPlugs-Kitchen\"}",
-    "{\"id\": \"041a7b4a-23b4-11f1-9cff-e865389374d4\", \"time\": \"March 19 2026 11 52 29\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-Garage\"}",
-    "{\"id\": \"02a6cb72-23b4-11f1-aeb7-e865389374d4\", \"time\": \"March 19 2026 11 52 27\", \"message\": \"No reason given\", \"deviceID\": \"Thermostat\"}",
-    "{\"id\": \"f44dc682-23b2-11f1-8a4b-e865389374d4\", \"time\": \"March 19 2026 11 44 53\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-FrontDoor\"}",
-    "{\"id\": \"f3ddbd8e-23b2-11f1-bba9-e865389374d4\", \"time\": \"March 19 2026 11 44 52\", \"message\": \"No Reason Provided\", \"deviceID\": \"Lights-Kitchen\"}",
-    "{\"id\": \"f3551b70-23b2-11f1-81cd-e865389374d4\", \"time\": \"March 19 2026 11 44 51\", \"message\": \"No Reason Provided\", \"deviceID\": \"Lights-Bedroom\"}",
-    "{\"id\": \"f26593ec-23b2-11f1-a816-e865389374d4\", \"time\": \"March 19 2026 11 44 50\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-BackDoor\"}",
-    "{\"id\": \"ec78e5a0-23b2-11f1-85c7-e865389374d4\", \"time\": \"March 19 2026 11 44 40\", \"message\": \"No Reason Provided\", \"deviceID\": \"SmartPlugs-LivingRoom\"}",
-    "{\"id\": \"e9110b9c-23b2-11f1-a996-e865389374d4\", \"time\": \"March 19 2026 11 44 34\", \"message\": \"No Reason Provided\", \"deviceID\": \"SmartPlugs-Kitchen\"}",
-    "{\"id\": \"e872bdce-23b2-11f1-9ca5-e865389374d4\", \"time\": \"March 19 2026 11 44 33\", \"message\": \"No Reason Provided\", \"deviceID\": \"Locks-Garage\"}",
-    "{\"id\": \"e7b37193-23b2-11f1-9dec-e865389374d4\", \"time\": \"March 19 2026 11 44 32\", \"message\": \"No reason given\", \"deviceID\": \"Thermostat\"}",
-    "{\"id\": \"8374fb74-2268-11f1-addb-f02f74d10233\", \"time\": \"March 17 2026 20 19 30\", \"message\": \"This-is-the-reason\", \"deviceID\": \"Locks-FrontDoor\"}"
+    {
+        "id": "b094fe79-2410-11f1-9413-e865389374d4",
+        "time": "March 19 2026 22 55 52",
+        "message": "Changed by user",
+        "deviceID": "Lights-LivingRoom"
+    },
+    {
+        "id": "b00f922b-2410-11f1-9f82-e865389374d4",
+        "time": "March 19 2026 22 55 51",
+        "message": "Changed by user",
+        "deviceID": "Lights-LivingRoom"
+    },
+    {
+        "id": "aef43ab0-2410-11f1-8c7a-e865389374d4",
+        "time": "March 19 2026 22 55 49",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "ae6d6ca6-2410-11f1-b7b3-e865389374d4",
+        "time": "March 19 2026 22 55 48",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "ade1f913-2410-11f1-8079-e865389374d4",
+        "time": "March 19 2026 22 55 48",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "ad58e458-2410-11f1-8e09-e865389374d4",
+        "time": "March 19 2026 22 55 47",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "acc4f222-2410-11f1-8573-e865389374d4",
+        "time": "March 19 2026 22 55 46",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "ac22e889-2410-11f1-a80a-e865389374d4",
+        "time": "March 19 2026 22 55 45",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "ab1432cf-2410-11f1-a69f-e865389374d4",
+        "time": "March 19 2026 22 55 43",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "aa744ba0-2410-11f1-aee2-e865389374d4",
+        "time": "March 19 2026 22 55 42",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "a9b79b99-2410-11f1-a148-e865389374d4",
+        "time": "March 19 2026 22 55 41",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "a8621745-2410-11f1-99b6-e865389374d4",
+        "time": "March 19 2026 22 55 38",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "851279ba-240f-11f1-a9de-e865389374d4",
+        "time": "March 19 2026 22 47 30",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-Bedroom"
+    },
+    {
+        "id": "83e5bb6f-240f-11f1-977b-e865389374d4",
+        "time": "March 19 2026 22 47 28",
+        "message": "Changed by user",
+        "deviceID": "FrontDoorCam"
+    },
+    {
+        "id": "830c90cd-240f-11f1-b81c-e865389374d4",
+        "time": "March 19 2026 22 47 26",
+        "message": "Changed by user",
+        "deviceID": "GarageDoor"
+    },
+    {
+        "id": "81e19245-240f-11f1-8425-e865389374d4",
+        "time": "March 19 2026 22 47 24",
+        "message": "Changed by user",
+        "deviceID": "Lights-LivingRoom"
+    },
+    {
+        "id": "7f6bae63-240f-11f1-92db-e865389374d4",
+        "time": "March 19 2026 22 47 20",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "7ecf6456-240f-11f1-91d7-e865389374d4",
+        "time": "March 19 2026 22 47 19",
+        "message": "Changed by user",
+        "deviceID": "Locks-Garage"
+    },
+    {
+        "id": "7e75c3e6-240f-11f1-ada4-e865389374d4",
+        "time": "March 19 2026 22 47 18",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-LivingRoom"
+    },
+    {
+        "id": "7dc7e44c-240f-11f1-9565-e865389374d4",
+        "time": "March 19 2026 22 47 17",
+        "message": "Changed by user",
+        "deviceID": "Locks-BackDoor"
+    },
+    {
+        "id": "7d6c7f75-240f-11f1-9ebc-e865389374d4",
+        "time": "March 19 2026 22 47 17",
+        "message": "Changed by user",
+        "deviceID": "Lights-Bedroom"
+    },
+    {
+        "id": "7cb9fef1-240f-11f1-8e8f-e865389374d4",
+        "time": "March 19 2026 22 47 16",
+        "message": "Changed by user",
+        "deviceID": "Lights-Kitchen"
+    },
+    {
+        "id": "7c5c11a5-240f-11f1-94b1-e865389374d4",
+        "time": "March 19 2026 22 47 15",
+        "message": "Changed by user",
+        "deviceID": "Locks-FrontDoor"
+    },
+    {
+        "id": "7c054f89-240f-11f1-b7f5-e865389374d4",
+        "time": "March 19 2026 22 47 14",
+        "message": "Changed by user",
+        "deviceID": "CoffeeMachine"
+    },
+    {
+        "id": "7b624fce-240f-11f1-91f5-e865389374d4",
+        "time": "March 19 2026 22 47 13",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-Bedroom"
+    },
+    {
+        "id": "7af2af91-240f-11f1-9543-e865389374d4",
+        "time": "March 19 2026 22 47 13",
+        "message": "Changed by user",
+        "deviceID": "FrontDoorCam"
+    },
+    {
+        "id": "7aabf7f2-240f-11f1-8b8f-e865389374d4",
+        "time": "March 19 2026 22 47 12",
+        "message": "Changed by user",
+        "deviceID": "GarageDoor"
+    },
+    {
+        "id": "7a114ef6-240f-11f1-adc0-e865389374d4",
+        "time": "March 19 2026 22 47 11",
+        "message": "Changed by user",
+        "deviceID": "Lights-LivingRoom"
+    },
+    {
+        "id": "7734ca1a-240f-11f1-8471-e865389374d4",
+        "time": "March 19 2026 22 47 06",
+        "message": "Changed by user",
+        "deviceID": "Lights-Bedroom"
+    },
+    {
+        "id": "76915a39-240f-11f1-9368-e865389374d4",
+        "time": "March 19 2026 22 47 05",
+        "message": "Changed by user",
+        "deviceID": "Lights-Bedroom"
+    },
+    {
+        "id": "74c6c4e4-240f-11f1-ade2-e865389374d4",
+        "time": "March 19 2026 22 47 02",
+        "message": "Changed by user",
+        "deviceID": "Lights-Bedroom"
+    },
+    {
+        "id": "72ec1c25-240f-11f1-9dfd-e865389374d4",
+        "time": "March 19 2026 22 46 59",
+        "message": "Changed by user",
+        "deviceID": "Lights-Bedroom"
+    },
+    {
+        "id": "717d0432-240f-11f1-88cb-e865389374d4",
+        "time": "March 19 2026 22 46 57",
+        "message": "Changed by user",
+        "deviceID": "Locks-BackDoor"
+    },
+    {
+        "id": "70727524-240f-11f1-9e34-e865389374d4",
+        "time": "March 19 2026 22 46 55",
+        "message": "Changed by user",
+        "deviceID": "Locks-BackDoor"
+    },
+    {
+        "id": "6cf47270-240f-11f1-8771-e865389374d4",
+        "time": "March 19 2026 22 46 49",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-LivingRoom"
+    },
+    {
+        "id": "6c26cd5c-240f-11f1-8df7-e865389374d4",
+        "time": "March 19 2026 22 46 48",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-LivingRoom"
+    },
+    {
+        "id": "6aa15c38-240f-11f1-9cdb-e865389374d4",
+        "time": "March 19 2026 22 46 45",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-LivingRoom"
+    },
+    {
+        "id": "69ef4f1b-240f-11f1-8b41-e865389374d4",
+        "time": "March 19 2026 22 46 44",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-LivingRoom"
+    },
+    {
+        "id": "67fd5a5b-240f-11f1-9b60-e865389374d4",
+        "time": "March 19 2026 22 46 41",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-Kitchen"
+    },
+    {
+        "id": "67653c8e-240f-11f1-bef8-e865389374d4",
+        "time": "March 19 2026 22 46 40",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-Kitchen"
+    },
+    {
+        "id": "64a7d37a-240f-11f1-935f-e865389374d4",
+        "time": "March 19 2026 22 46 35",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-Kitchen"
+    },
+    {
+        "id": "635584d8-240f-11f1-8b0c-e865389374d4",
+        "time": "March 19 2026 22 46 33",
+        "message": "Changed by user",
+        "deviceID": "SmartPlugs-Kitchen"
+    },
+    {
+        "id": "60ed03ba-240f-11f1-9b37-e865389374d4",
+        "time": "March 19 2026 22 46 29",
+        "message": "Changed by user",
+        "deviceID": "Locks-Garage"
+    },
+    {
+        "id": "5f896feb-240f-11f1-b0d3-e865389374d4",
+        "time": "March 19 2026 22 46 27",
+        "message": "Changed by user",
+        "deviceID": "Locks-Garage"
+    },
+    {
+        "id": "5dfa7a1f-240f-11f1-8abe-e865389374d4",
+        "time": "March 19 2026 22 46 24",
+        "message": "Changed by user",
+        "deviceID": "Locks-Garage"
+    },
+    {
+        "id": "5d43e8a5-240f-11f1-a616-e865389374d4",
+        "time": "March 19 2026 22 46 23",
+        "message": "Changed by user",
+        "deviceID": "Locks-Garage"
+    },
+    {
+        "id": "5bf3f703-240f-11f1-8c04-e865389374d4",
+        "time": "March 19 2026 22 46 21",
+        "message": "Changed by user",
+        "deviceID": "Locks-Garage"
+    },
+    {
+        "id": "5a9efc9c-240f-11f1-b0bf-e865389374d4",
+        "time": "March 19 2026 22 46 18",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "59947b9f-240f-11f1-b58d-e865389374d4",
+        "time": "March 19 2026 22 46 17",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "59074d27-240f-11f1-8fae-e865389374d4",
+        "time": "March 19 2026 22 46 16",
+        "message": "Changed by user",
+        "deviceID": "Thermostat"
+    }
 ]

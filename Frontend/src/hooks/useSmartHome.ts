@@ -1,5 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 
+// used to get the API or use localhost
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+
 // =============================================================================
 // TYPE DEFINITIONS (interfaces)
 // These define the SHAPE of data used throughout the app.
@@ -105,7 +109,11 @@ export interface Notification {
 // Returns the current time as a formatted string like "14:23:05"
 const now = () => {
   const d = new Date();
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  const month = d.toLocaleString("en-US", { month: "long" });
+  const day = d.getDate().toString().padStart(2, "0");
+  const year = d.getFullYear();
+  const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  return `${month} ${day}, ${year} ${time}`;
 };
 
 // Generates a short random ID like "k3xm9f2" for unique keys
@@ -155,7 +163,7 @@ export function useSmartHome() {
 
   const [homeStatus, setHomeStatus] = useState<"Home" | "Away">("Home");  // is the user home or away?
   const [temperature, setTemperature] = useState(72);                      // current thermostat temp
-  const [automationActive, setAutomationActive] = useState(true);          // are automations enabled?
+  //const [automationActive, setAutomationActive] = useState(true);          // are automations enabled?
   const [lastUpdate, setLastUpdate] = useState(now());                     // timestamp of last change
   const [devices, setDevices] = useState<DeviceState[]>([]);                // the 8 devices and their states from json file
   const [events, setEvents] = useState<EventLog[]>([                       // event history log
@@ -209,7 +217,7 @@ export function useSmartHome() {
   // Gets the backend state of the state.json file for initialization
   const fetchBackendState = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/state");
+      const res = await fetch(`${API_URL}/state`);
       const data = await res.json();
       const built: DeviceState[] = [];
 
@@ -217,7 +225,7 @@ export function useSmartHome() {
       // We loop through and create one DeviceState per light
       for (const light of data.Lights ?? []) {
         built.push({
-          id: `light-${light.Id}`,
+          id: `Lights-${light.Id}`,
           name: `${light.Id} Lights`,
           type: "light",
           icon: "Lightbulb",
@@ -229,21 +237,12 @@ export function useSmartHome() {
         });
       }
 
-      // Also load saved events from backend
-      try {
-        const eventsRes = await fetch("http://localhost:5000/events");
-        const savedEvents = await eventsRes.json();
-        if (savedEvents.length > 0) {
-          setEvents(savedEvents);
-        }
-      } catch (err) {
-        console.error("Failed to load events:", err);
-      }
+
 
       // data.Thermostat is a single object: {State: true, CurrentTemp: 75}
       if (data.Thermostat) {
         built.push({
-          id: "thermostat",
+          id: "Thermostat",
           name: "Thermostat",
           type: "thermostat",
           icon: "Thermometer",
@@ -260,7 +259,7 @@ export function useSmartHome() {
       // data.GarageDoor is a single object: {State: false}
       if (data.GarageDoor) {
         built.push({
-          id: "garage",
+          id: "GarageDoor",
           name: "Garage Door",
           type: "garage",
           icon: "Warehouse",
@@ -275,7 +274,7 @@ export function useSmartHome() {
       // data.Locks is an array: [{Id: "FrontDoor", State: true}, ...]
       for (const lock of data.Locks ?? []) {
         built.push({
-          id: `lock-${lock.Id}`,
+          id: `Locks-${lock.Id}`,
           name: `${lock.Id} Lock`,
           type: "lock",
           icon: "Lock",
@@ -290,7 +289,7 @@ export function useSmartHome() {
       // data.FrontDoorCam is a single object: {State: false}
       if (data.FrontDoorCam) {
         built.push({
-          id: "camera",
+          id: "FrontDoorCam",
           name: "Front Door Camera",
           type: "camera",
           icon: "Camera",
@@ -305,7 +304,7 @@ export function useSmartHome() {
       // data.CoffeeMachine is a single object: {State: true}
       if (data.CoffeeMachine) {
         built.push({
-          id: "coffee",
+          id: "CoffeeMachine",
           name: "Coffee Machine",
           type: "coffee",
           icon: "Coffee",
@@ -320,7 +319,7 @@ export function useSmartHome() {
       // data.SmartPlugs is an array: [{Id: "LivingRoom", State: true}, ...]
       for (const plug of data.SmartPlugs ?? []) {
         built.push({
-          id: `plug-${plug.Id}`,
+          id: `SmartPlugs-${plug.Id}`,
           name: `${plug.Id} Smart Plug`,
           type: "plug",
           icon: "Plug",
@@ -337,19 +336,52 @@ export function useSmartHome() {
 
       // fetch events from back end
       try {
-        const eventsRes = await fetch("http://localhost:5000/events");
+        const eventsRes = await fetch(`${API_URL}/events`);
         const savedEvents = await eventsRes.json();
         if (savedEvents.length > 0) {
           const parsed = savedEvents.map((e: string | Record<string, unknown>) =>
               typeof e === "string" ? JSON.parse(e) : e
           );
-          const mapped = parsed.map((e: Record<string, unknown>) => ({
-            id: e.id as string,
-            time: e.time as string,
-            message: e.message as string,
-            deviceId: (e.deviceID ?? e.deviceId) as string | undefined,
-          }));
-          setEvents(mapped);
+          const mapped = parsed.map((e: Record<string, unknown>) => {
+            let time = e.time as string;
+            const parts = time.split(" ");
+            if (parts.length === 6) {
+              time = `${parts[0]} ${parts[1]}, ${parts[2]} ${parts[3]}:${parts[4]}:${parts[5]}`;
+            }
+            return {
+              id: e.id as string,
+              time,
+              message: e.message as string,
+              deviceId: (e.deviceID ?? e.deviceId) as string | undefined,
+            };
+          });
+          setEvents(prev => {
+            // For each backend event, remove any
+            // local event that has the same deviceId and was created within
+            // 10 seconds (these are duplicates from the button press).
+            const backendIds = new Set(mapped.map((e: EventLog) => e.id));
+            const backendDeviceTimes = new Map<string, string>();
+            for (const be of mapped) {
+              if (be.deviceId) backendDeviceTimes.set(be.deviceId, be.time);
+            }
+
+            const localOnly = prev.filter(e => {
+              // Already in backend by id, drop it
+              if (backendIds.has(e.id)) return false;
+              // Local event for same device within 10s of a backend event, drop it
+              if (e.deviceId && backendDeviceTimes.has(e.deviceId)) {
+                const bTime = backendDeviceTimes.get(e.deviceId)!;
+                if (Math.abs(new Date(bTime).getTime() - new Date(e.time).getTime()) < 10000) {
+                  return false;
+                }
+              }
+              return true;
+            });
+
+            return [...localOnly, ...mapped].sort((a, b) =>
+                b.time.localeCompare(a.time)
+            ).slice(0, 50);
+          });
         }
       } catch (err) {
         console.error("Failed to load events:", err);
@@ -390,35 +422,39 @@ export function useSmartHome() {
     // Figure out which Flask endpoint to PATCH based on the device ID
     let url = "";
 
-    if (deviceId.startsWith("light-")) {
-      // deviceId is "light-LivingRoom", we need just "LivingRoom"
-      const name = deviceId.replace("light-", "");
-      url = `http://localhost:5000/lights/${name}`;
+    if (deviceId.startsWith("Lights-")) {
+      const name = deviceId.replace("Lights-", "");
+      url = `${API_URL}/lights/${name}`;
 
-    } else if (deviceId.startsWith("lock-")) {
-      const name = deviceId.replace("lock-", "");
-      url = `http://localhost:5000/locks/${name}`;
+    } else if (deviceId.startsWith("Locks-")) {
+      const name = deviceId.replace("Locks-", "");
+      url = `${API_URL}/locks/${name}`;
 
-    } else if (deviceId.startsWith("plug-")) {
-      const name = deviceId.replace("plug-", "");
-      url = `http://localhost:5000/smartPlug/${name}`;
+    } else if (deviceId.startsWith("SmartPlugs-")) {
+      const name = deviceId.replace("SmartPlugs-", "");
+      url = `${API_URL}/smartPlug/${name}`;
 
-    } else if (deviceId === "thermostat") {
-      url = "http://localhost:5000/thermostat";
+    } else if (deviceId === "Thermostat") {
+      url = `${API_URL}/thermostat`;
 
-    } else if (deviceId === "garage") {
-      url = "http://localhost:5000/garage";
+    } else if (deviceId === "GarageDoor") {
+      url = `${API_URL}/garage`;
 
-    } else if (deviceId === "coffee") {
-      url = "http://localhost:5000/coffeeMachine";
+    } else if (deviceId === "CoffeeMachine") {
+      url = `${API_URL}/coffeeMachine`;
 
-    } else if (deviceId === "camera") {
-      url = "http://localhost:5000/frontDoorCam";
+    } else if (deviceId === "FrontDoorCam") {
+      url = `${API_URL}/frontDoorCam`;
     }
 
     // Send the PATCH request to Flask, which toggles the state in state.json
     try {
-      const res = await fetch(url, { method: "PATCH" });
+      const device = devices.find(d => d.id === deviceId);
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Reason: `Changed by user` }),
+      });
       const newState = await res.text(); // Flask returns "True" or "False" as a string
 
       // Thermostat returns "True,75" (state + temp), others return just "True"/"False"
@@ -439,11 +475,8 @@ export function useSmartHome() {
         return { ...d, state: isOn, detail };
       }));
 
-      // Log the event
-      const device = devices.find(d => d.id === deviceId);
-      if (device) {
-        addEvent(`${device.name} turned ${isOn ? "ON" : "OFF"}`, deviceId);
-      }
+
+      addEvent(`Changed by user`, deviceId);
 
     } catch (err) {
       console.error("Failed to toggle device:", err);
@@ -451,302 +484,302 @@ export function useSmartHome() {
   }, [devices, addEvent, saveSnapshot]);
 
 
-  // ==========================================================================
-  // SIMULATE LEAVING HOME
-  // Triggered by a button in SimulationControls.tsx.
-  // Sets status to "Away" and runs a full departure sequence:
-  //   - Turns off lights (with explanation)
-  //   - Arms alarm
-  //   - Locks front door
-  //   - Closes garage
-  //   - Sets thermostat to Eco mode (with explanation)
-  //   - Logs events and sends notifications for each action
-  // ==========================================================================
-  const simulateLeaving = useCallback(() => {
-    saveSnapshot();
-    setHomeStatus("Away");
-
-    // Create fake sensor readings for this scenario
-    const motionSensor = makeSensor("motion_lr", "Living Room Motion", 0, "occupancy");
-    const geoSensor = makeSensor("geofence", "Geofence", "outside", "");
-
-    // Build an XAI explanation for why the lights turned off
-    const lightsExpl = makeExplanation(
-        "Lights turned off because user left home and no occupancy was detected in any room.",
-        [motionSensor, geoSensor],
-        [
-          { id: "geo", label: "Geofence: Outside", type: "sensor", value: "outside" },
-          { id: "motion", label: "Motion: 0", type: "sensor", value: "0" },
-          { id: "rule", label: "Away Mode Rule", type: "rule" },
-          { id: "action", label: "Lights OFF", type: "action" },
-        ],
-        [{ from: "geo", to: "rule" }, { from: "motion", to: "rule" }, { from: "rule", to: "action" }],
-        {
-          whyNot: "Lights would have stayed on if motion was detected (occupancy > 0.3).",
-          whatIf: "If someone was still home, only unused rooms would dim.",
-          confidence: 0.95, confidenceLabel: "Very High",
-          suggestedFix: "To keep lights on when leaving, disable 'Auto-off on departure' in Settings.",
-          counterfactual: { variable: "occupancy", currentValue: 0, alternativeValue: 0.5, wouldFire: false, description: "If occupancy had been 0.5, lights would have stayed on." },
-        }
-    );
-
-    // Build an XAI explanation for why the thermostat switched to Eco mode
-    const thermoExpl = makeExplanation(
-        "Thermostat switched to Eco Mode because no one is home and outside temperature is moderate.",
-        [makeSensor("temp_outdoor", "Outdoor Temp", 58, "°F"), geoSensor],
-        [
-          { id: "geo", label: "Geofence: Outside", type: "sensor", value: "outside" },
-          { id: "temp", label: "Outdoor: 58°F", type: "sensor", value: "58" },
-          { id: "rule", label: "Eco Mode Rule", type: "rule" },
-          { id: "action", label: "Set 65°F Eco", type: "action" },
-        ],
-        [{ from: "geo", to: "rule" }, { from: "temp", to: "rule" }, { from: "rule", to: "action" }],
-        { confidence: 0.93, confidenceLabel: "High", whyNot: "It didn't set to heating because outdoor temp > 40°F.", counterfactual: { variable: "outdoor_temp", currentValue: 58, alternativeValue: 30, wouldFire: true, description: "If outdoor temp was 30°F, heating mode would activate instead of eco." } }
-    );
-
-    // Update ALL affected devices at once
-    setDevices(prev => prev.map(d => {
-      if (d.id === "lights") return { ...d, state: false, detail: "Off", lastExplanation: lightsExpl, sensorInputs: [motionSensor, ...d.sensorInputs.slice(1)] };
-      if (d.id === "alarm") return { ...d, state: true, detail: "Armed", confidence: 0.97 };
-      if (d.id === "lock") return { ...d, state: true, detail: "Locked", confidence: 0.96 };
-      if (d.id === "thermostat") return { ...d, detail: "Eco Mode", extra: { temp: 65, mode: "Eco" }, lastExplanation: thermoExpl };
-      if (d.id === "garage") return { ...d, state: false, detail: "Closed" };
-      return d;  // other devices unchanged
-    }));
-
-    setTemperature(65);
-
-    // Log events for each action taken
-    addEvent("User left home — Away mode activated", undefined, lightsExpl);
-    addEvent("Lights turned OFF", "lights", lightsExpl);
-    addEvent("Thermostat switched to Eco Mode (65°F)", "thermostat", thermoExpl);
-    addEvent("Garage door closed", "garage");
-    addEvent("Alarm system armed", "alarm");
-    addEvent("Front door locked", "lock");
-
-    // Send user-facing notifications for each action
-    addNotification({ summary: "Lights turned off", action: "Living room lights turned OFF", reason: "User left home — Away mode activated", trigger: "Geofence sensor", explanation: lightsExpl });
-    addNotification({ summary: "Thermostat set to Eco mode", action: "Thermostat lowered to 65°F (Eco Mode)", reason: "Energy saving when no one is home", trigger: "Home status changed to Away", explanation: thermoExpl });
-    addNotification({ summary: "Garage door closed automatically", action: "Garage door closed", reason: "Security protocol — close all entry points when leaving", trigger: "Home status changed to Away" });
-    addNotification({ summary: "Front door locked", action: "Front door lock engaged", reason: "Auto-lock on departure", trigger: "Home status changed to Away" });
-  }, [addEvent, addNotification, saveSnapshot]);
-
-  // ==========================================================================
-  // SIMULATE MOTION AT FRONT DOOR
-  // Generates a random motion confidence value, creates sensor data,
-  // activates the camera, turns on lights, and sends a notification.
-  // After 5 seconds, resets the camera to "Idle."
-  // ==========================================================================
-  const simulateMotion = useCallback(() => {
-    saveSnapshot();
-
-    // Random motion confidence between 0.85 and 1.0
-    const motionVal = 0.85 + Math.random() * 0.15;
-    const motionSensor = makeSensor("motion_fd", "Front Door Motion", Number(motionVal.toFixed(2)), "confidence");
-    const irSensor = makeSensor("ir_sensor", "IR Sensor", "active", "");
-
-    // Build explanation with a causal graph:
-    // motion sensor + IR sensor -> AI Model -> camera recording + lights on
-    const expl = makeExplanation(
-        `Motion detected at front door with ${(motionVal * 100).toFixed(0)}% confidence. Camera activated and lights turned on for security.`,
-        [motionSensor, irSensor],
-        [
-          { id: "motion", label: `Motion: ${motionVal.toFixed(2)}`, type: "sensor", value: motionVal.toFixed(2) },
-          { id: "ir", label: "IR: Active", type: "sensor", value: "active" },
-          { id: "ai", label: "Motion AI Model", type: "ai_model" },
-          { id: "cam", label: "Camera: Record", type: "action" },
-          { id: "light", label: "Lights: ON", type: "action" },
-        ],
-        [{ from: "motion", to: "ai" }, { from: "ir", to: "ai" }, { from: "ai", to: "cam" }, { from: "ai", to: "light" }],
-        {
-          confidence: motionVal, confidenceLabel: motionVal > 0.9 ? "Very High" : "High",
-          whyNot: "It didn't trigger the alarm because the system is in Home mode and motion at the front door is expected.",
-          whatIf: "If the system was in Away mode, the alarm would also sound and a notification would be sent to your phone.",
-          suggestedFix: "To disable motion lights, edit 'Motion Response' rule.",
-          counterfactual: { variable: "motion_confidence", currentValue: Number(motionVal.toFixed(2)), alternativeValue: 0.3, wouldFire: false, description: "If motion confidence was below 0.5, camera would not activate." },
-        }
-    );
-
-    // Update camera to "Motion Detected" and turn on lights if they were off
-    setDevices(prev => prev.map(d => {
-      if (d.id === "camera") return { ...d, detail: "Motion Detected", lastExplanation: expl, confidence: motionVal, confidenceLabel: motionVal > 0.9 ? "Very High" : "High", sensorInputs: [motionSensor, irSensor] };
-      if (d.id === "lights" && !d.state) return { ...d, state: true, detail: "Warm White", lastExplanation: expl };
-      return d;
-    }));
-
-    addEvent("Motion detected at front door", "camera", expl);
-    addEvent("Front door camera activated", "camera");
-    addNotification({ summary: "Motion detected at front door", action: "Camera recording started, lights turned on", reason: "Motion sensor triggered at the front entrance", trigger: "Front door motion sensor", explanation: expl });
-
-    // After 5 seconds, reset camera back to idle (simulating motion ending)
-    setTimeout(() => {
-      setDevices(prev => prev.map(d => d.id === "camera" ? { ...d, detail: "Idle" } : d));
-      addEvent("Motion sensor inactive — front door", "camera");
-    }, 5000);
-  }, [addEvent, addNotification, saveSnapshot]);
-
-  // ==========================================================================
-  // SIMULATE TEMPERATURE CHANGE
-  // Picks a random temp between 60-85, determines if HVAC should heat/cool,
-  // updates the thermostat device, and notifies the user.
-  // ==========================================================================
-  const simulateTempChange = useCallback(() => {
-    saveSnapshot();
-
-    // Random temp between 60 and 85
-    const newTemp = Math.round(60 + Math.random() * 25);
-    const indoorSensor = makeSensor("temp_indoor", "Indoor Temp Sensor", newTemp, "°F");
-    const outdoorSensor = makeSensor("temp_outdoor", "Outdoor Temp Sensor", Math.round(40 + Math.random() * 30), "°F");
-
-    // Decide HVAC mode based on thresholds: >78 = Cooling, <65 = Heating, else Normal
-    const mode = newTemp > 78 ? "Cooling" : newTemp < 65 ? "Heating" : "Normal";
-
-    const expl = makeExplanation(
-        `Temperature changed to ${newTemp}°F. ${mode === "Cooling" ? "AC activated because indoor temp exceeded 78°F threshold." : mode === "Heating" ? "Heating activated because indoor temp dropped below 65°F." : "Temperature within comfort range, no HVAC action needed."}`,
-        [indoorSensor, outdoorSensor],
-        [
-          { id: "indoor", label: `Indoor: ${newTemp}°F`, type: "sensor", value: `${newTemp}` },
-          { id: "outdoor", label: `Outdoor: ${outdoorSensor.value}°F`, type: "sensor", value: `${outdoorSensor.value}` },
-          { id: "rule", label: "HVAC Control Rule", type: "rule" },
-          { id: "action", label: `Mode: ${mode}`, type: "action" },
-        ],
-        [{ from: "indoor", to: "rule" }, { from: "outdoor", to: "rule" }, { from: "rule", to: "action" }],
-        {
-          confidence: 0.91, confidenceLabel: "High",
-          whyNot: mode === "Normal" ? "HVAC didn't activate because temperature is within 65-78°F comfort range." : undefined,
-          whatIf: newTemp > 78 ? "If you set the threshold to 80°F, the AC would not have activated." : newTemp < 65 ? "If you close the windows, heating would be more efficient." : "Lowering the upper threshold would trigger cooling sooner.",
-          suggestedFix: `To adjust comfort range, modify 'HVAC Thresholds' in Settings (currently 65-78°F).`,
-          counterfactual: { variable: "indoor_temp", currentValue: newTemp, alternativeValue: 72, wouldFire: false, description: "At 72°F, no HVAC action would be taken." },
-        }
-    );
-
-    setTemperature(newTemp);
-    setDevices(prev => prev.map(d => {
-      if (d.id === "thermostat") {
-        return { ...d, detail: `${newTemp}°F`, extra: { temp: newTemp, mode }, lastExplanation: expl, sensorInputs: [indoorSensor, outdoorSensor], confidence: 0.91 };
-      }
-      return d;
-    }));
-
-    addEvent(`Temperature changed to ${newTemp}°F`, "thermostat", expl);
-
-    // Only notify if HVAC actually kicked in
-    if (newTemp > 78) {
-      addNotification({ summary: "AC activated", action: `Thermostat set to cooling mode (${newTemp}°F)`, reason: "Indoor temperature exceeded 78°F threshold", trigger: "Temperature sensor", explanation: expl });
-    } else if (newTemp < 65) {
-      addNotification({ summary: "Heating activated", action: `Thermostat set to heating mode (${newTemp}°F)`, reason: "Indoor temperature dropped below 65°F threshold", trigger: "Temperature sensor", explanation: expl });
-    }
-  }, [addEvent, addNotification, saveSnapshot]);
-
-  // ==========================================================================
-  // SIMULATE GARAGE DOOR TOGGLE
-  // Flips the garage open/closed with proximity sensor data.
-  // Sends an alert notification if the garage opens while the user is Away.
-  // ==========================================================================
-  const simulateGarage = useCallback(() => {
-    saveSnapshot();
-    const garage = devices.find(d => d.id === "garage");
-    if (!garage) return;
-    const opening = !garage.state;  // if currently closed, we're opening it
-
-    const proxSensor = makeSensor("proximity", "Vehicle Proximity", opening ? 2.5 : 0, "m");
-    const expl = makeExplanation(
-        `Garage door ${opening ? "opened" : "closed"} ${opening ? "— vehicle detected approaching" : "— no vehicle detected, auto-close triggered"}.`,
-        [proxSensor, makeSensor("garage_sensor", "Garage Door Sensor", opening ? "open" : "closed", "")],
-        [
-          { id: "prox", label: `Proximity: ${proxSensor.value}m`, type: "sensor", value: `${proxSensor.value}` },
-          { id: "rule", label: "Garage Auto Rule", type: "rule" },
-          { id: "action", label: `Door: ${opening ? "Open" : "Close"}`, type: "action" },
-        ],
-        [{ from: "prox", to: "rule" }, { from: "rule", to: "action" }],
-        {
-          confidence: 0.88, confidenceLabel: "High",
-          whyNot: opening ? "It didn't keep the door closed because vehicle proximity was > 2m." : undefined,
-          counterfactual: { variable: "proximity", currentValue: Number(proxSensor.value), alternativeValue: 0, wouldFire: !opening, description: opening ? "With no vehicle detected, door would stay closed." : "With a vehicle approaching, door would open instead." },
-        }
-    );
-
-    setDevices(prev => prev.map(d => d.id === "garage" ? { ...d, state: opening, detail: opening ? "Open" : "Closed", lastExplanation: expl, sensorInputs: [proxSensor, ...d.sensorInputs.slice(1)] } : d));
-    addEvent(`Garage door ${opening ? "opened" : "closed"}`, "garage", expl);
-
-    // Security alert: garage opened while no one is home
-    if (opening && homeStatus === "Away") {
-      addNotification({ summary: "Garage door opened while away", action: "Garage door opened", reason: "Unexpected — no one is home", trigger: "Garage door sensor", explanation: expl });
-    }
-  }, [devices, addEvent, addNotification, homeStatus, saveSnapshot]);
-
-  // ==========================================================================
-  // SIMULATE ARRIVING HOME
-  // Sets status to "Home" and runs a welcome sequence:
-  //   - Turns on lights
-  //   - Unlocks front door
-  //   - Sets thermostat to 72°F
-  // ==========================================================================
-  const simulateArrive = useCallback(() => {
-    saveSnapshot();
-    setHomeStatus("Home");
-    const geoSensor = makeSensor("geofence", "Geofence", "inside", "");
-
-    // Causal graph: geofence -> welcome rule -> lights ON, door unlock, thermostat 72
-    const expl = makeExplanation(
-        "Welcome home sequence activated because geofence detected user within home radius.",
-        [geoSensor],
-        [
-          { id: "geo", label: "Geofence: Inside", type: "sensor", value: "inside" },
-          { id: "rule", label: "Welcome Home Rule", type: "rule" },
-          { id: "lights", label: "Lights: ON", type: "action" },
-          { id: "lock", label: "Door: Unlock", type: "action" },
-          { id: "thermo", label: "Thermostat: 72°F", type: "action" },
-        ],
-        [{ from: "geo", to: "rule" }, { from: "rule", to: "lights" }, { from: "rule", to: "lock" }, { from: "rule", to: "thermo" }],
-        { confidence: 0.94, confidenceLabel: "High", suggestedFix: "Customize welcome scene in 'Arrival Settings'." }
-    );
-
-    setDevices(prev => prev.map(d => {
-      if (d.id === "lights") return { ...d, state: true, detail: "Warm White", lastExplanation: expl };
-      if (d.id === "thermostat") return { ...d, detail: "72°F", extra: { temp: 72, mode: "Normal" }, lastExplanation: expl };
-      if (d.id === "lock") return { ...d, state: false, detail: "Unlocked", lastExplanation: expl };
-      return d;
-    }));
-    setTemperature(72);
-
-    addEvent("User arrived home", undefined, expl);
-    addEvent("Lights turned ON — welcome mode", "lights", expl);
-    addEvent("Front door unlocked", "lock");
-    addEvent("Thermostat set to 72°F", "thermostat");
-    addNotification({ summary: "Welcome home sequence activated", action: "Lights on, door unlocked, thermostat adjusted", reason: "User arrived home", trigger: "Geofence / manual trigger", explanation: expl });
-  }, [addEvent, addNotification, saveSnapshot]);
-
-  // ==========================================================================
-  // SIMULATE "WHAT IF" QUERY
-  // Lets the user ask counterfactual questions about a device's last decision.
-  // e.g., "What if the temperature had been 80 instead of 72?"
-  // Uses the counterfactual data stored in the device's lastExplanation.
-  // ==========================================================================
-  const simulateWhatIf = useCallback((deviceId: string, variable: string, newValue: number): string => {
-    const device = devices.find(d => d.id === deviceId);
-    if (!device?.lastExplanation?.counterfactual) return "No counterfactual data available for this device.";
-    const cf = device.lastExplanation.counterfactual;
-
-    if (variable === cf.variable) {
-      // Check if the new value is closer to the alternative or the original
-      if (Math.abs(newValue - cf.alternativeValue) < Math.abs(newValue - cf.currentValue)) {
-        return `With ${variable} = ${newValue}: ${cf.wouldFire ? "Action WOULD fire." : "Action would NOT fire."} ${cf.description}`;
-      }
-      return `With ${variable} = ${newValue}: Original action would still ${cf.wouldFire ? "not fire" : "fire"} as the value is closer to the original.`;
-    }
-    return `Simulation for ${variable} = ${newValue}: Behavior unchanged — this variable doesn't affect the current decision.`;
-  }, [devices]);
-
-  // ==========================================================================
-  // RESTORE SNAPSHOT (time-travel)
-  // Reverts the device states back to a previously saved snapshot.
-  // ==========================================================================
-  const restoreSnapshot = useCallback((index: number) => {
-    if (index < 0 || index >= replayHistory.length) return;
-    setDevices(replayHistory[index].snapshot);
-    addEvent(`Restored snapshot from ${replayHistory[index].time}`);
-  }, [replayHistory, addEvent]);
+  // // ==========================================================================
+  // // SIMULATE LEAVING HOME
+  // // Triggered by a button in SimulationControls.tsx.
+  // // Sets status to "Away" and runs a full departure sequence:
+  // //   - Turns off lights (with explanation)
+  // //   - Arms alarm
+  // //   - Locks front door
+  // //   - Closes garage
+  // //   - Sets thermostat to Eco mode (with explanation)
+  // //   - Logs events and sends notifications for each action
+  // // ==========================================================================
+  // const simulateLeaving = useCallback(() => {
+  //   saveSnapshot();
+  //   setHomeStatus("Away");
+  //
+  //   // Create fake sensor readings for this scenario
+  //   const motionSensor = makeSensor("motion_lr", "Living Room Motion", 0, "occupancy");
+  //   const geoSensor = makeSensor("geofence", "Geofence", "outside", "");
+  //
+  //   // Build an XAI explanation for why the lights turned off
+  //   const lightsExpl = makeExplanation(
+  //       "Lights turned off because user left home and no occupancy was detected in any room.",
+  //       [motionSensor, geoSensor],
+  //       [
+  //         { id: "geo", label: "Geofence: Outside", type: "sensor", value: "outside" },
+  //         { id: "motion", label: "Motion: 0", type: "sensor", value: "0" },
+  //         { id: "rule", label: "Away Mode Rule", type: "rule" },
+  //         { id: "action", label: "Lights OFF", type: "action" },
+  //       ],
+  //       [{ from: "geo", to: "rule" }, { from: "motion", to: "rule" }, { from: "rule", to: "action" }],
+  //       {
+  //         whyNot: "Lights would have stayed on if motion was detected (occupancy > 0.3).",
+  //         whatIf: "If someone was still home, only unused rooms would dim.",
+  //         confidence: 0.95, confidenceLabel: "Very High",
+  //         suggestedFix: "To keep lights on when leaving, disable 'Auto-off on departure' in Settings.",
+  //         counterfactual: { variable: "occupancy", currentValue: 0, alternativeValue: 0.5, wouldFire: false, description: "If occupancy had been 0.5, lights would have stayed on." },
+  //       }
+  //   );
+  //
+  //   // Build an XAI explanation for why the thermostat switched to Eco mode
+  //   const thermoExpl = makeExplanation(
+  //       "Thermostat switched to Eco Mode because no one is home and outside temperature is moderate.",
+  //       [makeSensor("temp_outdoor", "Outdoor Temp", 58, "°F"), geoSensor],
+  //       [
+  //         { id: "geo", label: "Geofence: Outside", type: "sensor", value: "outside" },
+  //         { id: "temp", label: "Outdoor: 58°F", type: "sensor", value: "58" },
+  //         { id: "rule", label: "Eco Mode Rule", type: "rule" },
+  //         { id: "action", label: "Set 65°F Eco", type: "action" },
+  //       ],
+  //       [{ from: "geo", to: "rule" }, { from: "temp", to: "rule" }, { from: "rule", to: "action" }],
+  //       { confidence: 0.93, confidenceLabel: "High", whyNot: "It didn't set to heating because outdoor temp > 40°F.", counterfactual: { variable: "outdoor_temp", currentValue: 58, alternativeValue: 30, wouldFire: true, description: "If outdoor temp was 30°F, heating mode would activate instead of eco." } }
+  //   );
+  //
+  //   // Update ALL affected devices at once
+  //   setDevices(prev => prev.map(d => {
+  //     if (d.id === "lights") return { ...d, state: false, detail: "Off", lastExplanation: lightsExpl, sensorInputs: [motionSensor, ...d.sensorInputs.slice(1)] };
+  //     if (d.id === "alarm") return { ...d, state: true, detail: "Armed", confidence: 0.97 };
+  //     if (d.id === "lock") return { ...d, state: true, detail: "Locked", confidence: 0.96 };
+  //     if (d.id === "thermostat") return { ...d, detail: "Eco Mode", extra: { temp: 65, mode: "Eco" }, lastExplanation: thermoExpl };
+  //     if (d.id === "garage") return { ...d, state: false, detail: "Closed" };
+  //     return d;  // other devices unchanged
+  //   }));
+  //
+  //   setTemperature(65);
+  //
+  //   // Log events for each action taken
+  //   addEvent("User left home — Away mode activated", undefined, lightsExpl);
+  //   addEvent("Lights turned OFF", "lights", lightsExpl);
+  //   addEvent("Thermostat switched to Eco Mode (65°F)", "thermostat", thermoExpl);
+  //   addEvent("Garage door closed", "garage");
+  //   addEvent("Alarm system armed", "alarm");
+  //   addEvent("Front door locked", "lock");
+  //
+  //   // Send user-facing notifications for each action
+  //   addNotification({ summary: "Lights turned off", action: "Living room lights turned OFF", reason: "User left home — Away mode activated", trigger: "Geofence sensor", explanation: lightsExpl });
+  //   addNotification({ summary: "Thermostat set to Eco mode", action: "Thermostat lowered to 65°F (Eco Mode)", reason: "Energy saving when no one is home", trigger: "Home status changed to Away", explanation: thermoExpl });
+  //   addNotification({ summary: "Garage door closed automatically", action: "Garage door closed", reason: "Security protocol — close all entry points when leaving", trigger: "Home status changed to Away" });
+  //   addNotification({ summary: "Front door locked", action: "Front door lock engaged", reason: "Auto-lock on departure", trigger: "Home status changed to Away" });
+  // }, [addEvent, addNotification, saveSnapshot]);
+  //
+  // // ==========================================================================
+  // // SIMULATE MOTION AT FRONT DOOR
+  // // Generates a random motion confidence value, creates sensor data,
+  // // activates the camera, turns on lights, and sends a notification.
+  // // After 5 seconds, resets the camera to "Idle."
+  // // ==========================================================================
+  // const simulateMotion = useCallback(() => {
+  //   saveSnapshot();
+  //
+  //   // Random motion confidence between 0.85 and 1.0
+  //   const motionVal = 0.85 + Math.random() * 0.15;
+  //   const motionSensor = makeSensor("motion_fd", "Front Door Motion", Number(motionVal.toFixed(2)), "confidence");
+  //   const irSensor = makeSensor("ir_sensor", "IR Sensor", "active", "");
+  //
+  //   // Build explanation with a causal graph:
+  //   // motion sensor + IR sensor -> AI Model -> camera recording + lights on
+  //   const expl = makeExplanation(
+  //       `Motion detected at front door with ${(motionVal * 100).toFixed(0)}% confidence. Camera activated and lights turned on for security.`,
+  //       [motionSensor, irSensor],
+  //       [
+  //         { id: "motion", label: `Motion: ${motionVal.toFixed(2)}`, type: "sensor", value: motionVal.toFixed(2) },
+  //         { id: "ir", label: "IR: Active", type: "sensor", value: "active" },
+  //         { id: "ai", label: "Motion AI Model", type: "ai_model" },
+  //         { id: "cam", label: "Camera: Record", type: "action" },
+  //         { id: "light", label: "Lights: ON", type: "action" },
+  //       ],
+  //       [{ from: "motion", to: "ai" }, { from: "ir", to: "ai" }, { from: "ai", to: "cam" }, { from: "ai", to: "light" }],
+  //       {
+  //         confidence: motionVal, confidenceLabel: motionVal > 0.9 ? "Very High" : "High",
+  //         whyNot: "It didn't trigger the alarm because the system is in Home mode and motion at the front door is expected.",
+  //         whatIf: "If the system was in Away mode, the alarm would also sound and a notification would be sent to your phone.",
+  //         suggestedFix: "To disable motion lights, edit 'Motion Response' rule.",
+  //         counterfactual: { variable: "motion_confidence", currentValue: Number(motionVal.toFixed(2)), alternativeValue: 0.3, wouldFire: false, description: "If motion confidence was below 0.5, camera would not activate." },
+  //       }
+  //   );
+  //
+  //   // Update camera to "Motion Detected" and turn on lights if they were off
+  //   setDevices(prev => prev.map(d => {
+  //     if (d.id === "camera") return { ...d, detail: "Motion Detected", lastExplanation: expl, confidence: motionVal, confidenceLabel: motionVal > 0.9 ? "Very High" : "High", sensorInputs: [motionSensor, irSensor] };
+  //     if (d.id === "lights" && !d.state) return { ...d, state: true, detail: "Warm White", lastExplanation: expl };
+  //     return d;
+  //   }));
+  //
+  //   addEvent("Motion detected at front door", "camera", expl);
+  //   addEvent("Front door camera activated", "camera");
+  //   addNotification({ summary: "Motion detected at front door", action: "Camera recording started, lights turned on", reason: "Motion sensor triggered at the front entrance", trigger: "Front door motion sensor", explanation: expl });
+  //
+  //   // After 5 seconds, reset camera back to idle (simulating motion ending)
+  //   setTimeout(() => {
+  //     setDevices(prev => prev.map(d => d.id === "camera" ? { ...d, detail: "Idle" } : d));
+  //     addEvent("Motion sensor inactive — front door", "camera");
+  //   }, 5000);
+  // }, [addEvent, addNotification, saveSnapshot]);
+  //
+  // // ==========================================================================
+  // // SIMULATE TEMPERATURE CHANGE
+  // // Picks a random temp between 60-85, determines if HVAC should heat/cool,
+  // // updates the thermostat device, and notifies the user.
+  // // ==========================================================================
+  // const simulateTempChange = useCallback(() => {
+  //   saveSnapshot();
+  //
+  //   // Random temp between 60 and 85
+  //   const newTemp = Math.round(60 + Math.random() * 25);
+  //   const indoorSensor = makeSensor("temp_indoor", "Indoor Temp Sensor", newTemp, "°F");
+  //   const outdoorSensor = makeSensor("temp_outdoor", "Outdoor Temp Sensor", Math.round(40 + Math.random() * 30), "°F");
+  //
+  //   // Decide HVAC mode based on thresholds: >78 = Cooling, <65 = Heating, else Normal
+  //   const mode = newTemp > 78 ? "Cooling" : newTemp < 65 ? "Heating" : "Normal";
+  //
+  //   const expl = makeExplanation(
+  //       `Temperature changed to ${newTemp}°F. ${mode === "Cooling" ? "AC activated because indoor temp exceeded 78°F threshold." : mode === "Heating" ? "Heating activated because indoor temp dropped below 65°F." : "Temperature within comfort range, no HVAC action needed."}`,
+  //       [indoorSensor, outdoorSensor],
+  //       [
+  //         { id: "indoor", label: `Indoor: ${newTemp}°F`, type: "sensor", value: `${newTemp}` },
+  //         { id: "outdoor", label: `Outdoor: ${outdoorSensor.value}°F`, type: "sensor", value: `${outdoorSensor.value}` },
+  //         { id: "rule", label: "HVAC Control Rule", type: "rule" },
+  //         { id: "action", label: `Mode: ${mode}`, type: "action" },
+  //       ],
+  //       [{ from: "indoor", to: "rule" }, { from: "outdoor", to: "rule" }, { from: "rule", to: "action" }],
+  //       {
+  //         confidence: 0.91, confidenceLabel: "High",
+  //         whyNot: mode === "Normal" ? "HVAC didn't activate because temperature is within 65-78°F comfort range." : undefined,
+  //         whatIf: newTemp > 78 ? "If you set the threshold to 80°F, the AC would not have activated." : newTemp < 65 ? "If you close the windows, heating would be more efficient." : "Lowering the upper threshold would trigger cooling sooner.",
+  //         suggestedFix: `To adjust comfort range, modify 'HVAC Thresholds' in Settings (currently 65-78°F).`,
+  //         counterfactual: { variable: "indoor_temp", currentValue: newTemp, alternativeValue: 72, wouldFire: false, description: "At 72°F, no HVAC action would be taken." },
+  //       }
+  //   );
+  //
+  //   setTemperature(newTemp);
+  //   setDevices(prev => prev.map(d => {
+  //     if (d.id === "thermostat") {
+  //       return { ...d, detail: `${newTemp}°F`, extra: { temp: newTemp, mode }, lastExplanation: expl, sensorInputs: [indoorSensor, outdoorSensor], confidence: 0.91 };
+  //     }
+  //     return d;
+  //   }));
+  //
+  //   addEvent(`Temperature changed to ${newTemp}°F`, "thermostat", expl);
+  //
+  //   // Only notify if HVAC actually kicked in
+  //   if (newTemp > 78) {
+  //     addNotification({ summary: "AC activated", action: `Thermostat set to cooling mode (${newTemp}°F)`, reason: "Indoor temperature exceeded 78°F threshold", trigger: "Temperature sensor", explanation: expl });
+  //   } else if (newTemp < 65) {
+  //     addNotification({ summary: "Heating activated", action: `Thermostat set to heating mode (${newTemp}°F)`, reason: "Indoor temperature dropped below 65°F threshold", trigger: "Temperature sensor", explanation: expl });
+  //   }
+  // }, [addEvent, addNotification, saveSnapshot]);
+  //
+  // // ==========================================================================
+  // // SIMULATE GARAGE DOOR TOGGLE
+  // // Flips the garage open/closed with proximity sensor data.
+  // // Sends an alert notification if the garage opens while the user is Away.
+  // // ==========================================================================
+  // const simulateGarage = useCallback(() => {
+  //   saveSnapshot();
+  //   const garage = devices.find(d => d.id === "garage");
+  //   if (!garage) return;
+  //   const opening = !garage.state;  // if currently closed, we're opening it
+  //
+  //   const proxSensor = makeSensor("proximity", "Vehicle Proximity", opening ? 2.5 : 0, "m");
+  //   const expl = makeExplanation(
+  //       `Garage door ${opening ? "opened" : "closed"} ${opening ? "— vehicle detected approaching" : "— no vehicle detected, auto-close triggered"}.`,
+  //       [proxSensor, makeSensor("garage_sensor", "Garage Door Sensor", opening ? "open" : "closed", "")],
+  //       [
+  //         { id: "prox", label: `Proximity: ${proxSensor.value}m`, type: "sensor", value: `${proxSensor.value}` },
+  //         { id: "rule", label: "Garage Auto Rule", type: "rule" },
+  //         { id: "action", label: `Door: ${opening ? "Open" : "Close"}`, type: "action" },
+  //       ],
+  //       [{ from: "prox", to: "rule" }, { from: "rule", to: "action" }],
+  //       {
+  //         confidence: 0.88, confidenceLabel: "High",
+  //         whyNot: opening ? "It didn't keep the door closed because vehicle proximity was > 2m." : undefined,
+  //         counterfactual: { variable: "proximity", currentValue: Number(proxSensor.value), alternativeValue: 0, wouldFire: !opening, description: opening ? "With no vehicle detected, door would stay closed." : "With a vehicle approaching, door would open instead." },
+  //       }
+  //   );
+  //
+  //   setDevices(prev => prev.map(d => d.id === "garage" ? { ...d, state: opening, detail: opening ? "Open" : "Closed", lastExplanation: expl, sensorInputs: [proxSensor, ...d.sensorInputs.slice(1)] } : d));
+  //   addEvent(`Garage door ${opening ? "opened" : "closed"}`, "garage", expl);
+  //
+  //   // Security alert: garage opened while no one is home
+  //   if (opening && homeStatus === "Away") {
+  //     addNotification({ summary: "Garage door opened while away", action: "Garage door opened", reason: "Unexpected — no one is home", trigger: "Garage door sensor", explanation: expl });
+  //   }
+  // }, [devices, addEvent, addNotification, homeStatus, saveSnapshot]);
+  //
+  // // ==========================================================================
+  // // SIMULATE ARRIVING HOME
+  // // Sets status to "Home" and runs a welcome sequence:
+  // //   - Turns on lights
+  // //   - Unlocks front door
+  // //   - Sets thermostat to 72°F
+  // // ==========================================================================
+  // const simulateArrive = useCallback(() => {
+  //   saveSnapshot();
+  //   setHomeStatus("Home");
+  //   const geoSensor = makeSensor("geofence", "Geofence", "inside", "");
+  //
+  //   // Causal graph: geofence -> welcome rule -> lights ON, door unlock, thermostat 72
+  //   const expl = makeExplanation(
+  //       "Welcome home sequence activated because geofence detected user within home radius.",
+  //       [geoSensor],
+  //       [
+  //         { id: "geo", label: "Geofence: Inside", type: "sensor", value: "inside" },
+  //         { id: "rule", label: "Welcome Home Rule", type: "rule" },
+  //         { id: "lights", label: "Lights: ON", type: "action" },
+  //         { id: "lock", label: "Door: Unlock", type: "action" },
+  //         { id: "thermo", label: "Thermostat: 72°F", type: "action" },
+  //       ],
+  //       [{ from: "geo", to: "rule" }, { from: "rule", to: "lights" }, { from: "rule", to: "lock" }, { from: "rule", to: "thermo" }],
+  //       { confidence: 0.94, confidenceLabel: "High", suggestedFix: "Customize welcome scene in 'Arrival Settings'." }
+  //   );
+  //
+  //   setDevices(prev => prev.map(d => {
+  //     if (d.id === "lights") return { ...d, state: true, detail: "Warm White", lastExplanation: expl };
+  //     if (d.id === "thermostat") return { ...d, detail: "72°F", extra: { temp: 72, mode: "Normal" }, lastExplanation: expl };
+  //     if (d.id === "lock") return { ...d, state: false, detail: "Unlocked", lastExplanation: expl };
+  //     return d;
+  //   }));
+  //   setTemperature(72);
+  //
+  //   addEvent("User arrived home", undefined, expl);
+  //   addEvent("Lights turned ON — welcome mode", "lights", expl);
+  //   addEvent("Front door unlocked", "lock");
+  //   addEvent("Thermostat set to 72°F", "thermostat");
+  //   addNotification({ summary: "Welcome home sequence activated", action: "Lights on, door unlocked, thermostat adjusted", reason: "User arrived home", trigger: "Geofence / manual trigger", explanation: expl });
+  // }, [addEvent, addNotification, saveSnapshot]);
+  //
+  // // ==========================================================================
+  // // SIMULATE "WHAT IF" QUERY
+  // // Lets the user ask counterfactual questions about a device's last decision.
+  // // e.g., "What if the temperature had been 80 instead of 72?"
+  // // Uses the counterfactual data stored in the device's lastExplanation.
+  // // ==========================================================================
+  // const simulateWhatIf = useCallback((deviceId: string, variable: string, newValue: number): string => {
+  //   const device = devices.find(d => d.id === deviceId);
+  //   if (!device?.lastExplanation?.counterfactual) return "No counterfactual data available for this device.";
+  //   const cf = device.lastExplanation.counterfactual;
+  //
+  //   if (variable === cf.variable) {
+  //     // Check if the new value is closer to the alternative or the original
+  //     if (Math.abs(newValue - cf.alternativeValue) < Math.abs(newValue - cf.currentValue)) {
+  //       return `With ${variable} = ${newValue}: ${cf.wouldFire ? "Action WOULD fire." : "Action would NOT fire."} ${cf.description}`;
+  //     }
+  //     return `With ${variable} = ${newValue}: Original action would still ${cf.wouldFire ? "not fire" : "fire"} as the value is closer to the original.`;
+  //   }
+  //   return `Simulation for ${variable} = ${newValue}: Behavior unchanged — this variable doesn't affect the current decision.`;
+  // }, [devices]);
+  //
+  // // ==========================================================================
+  // // RESTORE SNAPSHOT (time-travel)
+  // // Reverts the device states back to a previously saved snapshot.
+  // // ==========================================================================
+  // const restoreSnapshot = useCallback((index: number) => {
+  //   if (index < 0 || index >= replayHistory.length) return;
+  //   setDevices(replayHistory[index].snapshot);
+  //   addEvent(`Restored snapshot from ${replayHistory[index].time}`);
+  // }, [replayHistory, addEvent]);
 
   // ==========================================================================
   // RETURN VALUE
@@ -757,10 +790,12 @@ export function useSmartHome() {
   //   const { devices, toggleDevice, simulateMotion } = useSmartHome();
   // ==========================================================================
   return {
-    homeStatus, temperature, automationActive, lastUpdate,
+    homeStatus, temperature,  lastUpdate,
     devices, events, notifications, trustScore, replayHistory,
-    toggleDevice, simulateLeaving, simulateMotion, simulateTempChange, simulateGarage, simulateArrive,
-    simulateWhatIf, restoreSnapshot,
-    setAutomationActive,
+    toggleDevice
+
+    // simulateLeaving, simulateMotion, simulateTempChange, simulateGarage, simulateArrive,
+    // simulateWhatIf, restoreSnapshot,
+    // setAutomationActive, automationActive,
   };
 }
