@@ -113,6 +113,7 @@ const Index = ({ username }: { username: string }) => {
                               events={sm.events}
                               onClose={() => setSelectedDevice(null)}
                               onWhatIf={sm.simulateWhatIf}
+                              onSetPriority={sm.setNotificationPriority}
                           />
                       ) : (
                           <div

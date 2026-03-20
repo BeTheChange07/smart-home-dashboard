@@ -14,7 +14,7 @@
         }
     ],
     "GarageDoor": {
-        "State": true
+        "State": false
     },
     "Lights": [
         {
@@ -23,7 +23,7 @@
         },
         {
             "Id": "Kitchen",
-            "State": false
+            "State": true
         },
         {
             "Id": "Bedroom",
