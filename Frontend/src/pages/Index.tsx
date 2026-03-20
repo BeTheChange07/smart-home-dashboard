@@ -21,6 +21,19 @@ const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: bool
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
 
   const selected = sm.devices.find(d => d.id === selectedDevice);
+  const handleBatchNotifications = async () => {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/batch");
+        const data = await res.json();
+
+        console.log("Batch response:", data);
+        alert("Batch notifications sent!");
+        window.location.reload();
+
+    } catch (err) {
+        console.error("Error sending batch notifications:", err);
+    }
+    };
 
   return (
       <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8 max-w-[1440px] mx-auto">
@@ -37,17 +50,29 @@ const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: bool
               </div>
             </div>
 
-            {/* Logout Button */}
-            <button
-                onClick={() => {
+            <div className="flex items-center gap-3">
+                {/* Admin Button */}
+                {isAdmin && (
+                    <button
+                    onClick={handleBatchNotifications}
+                    className="text-sm px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                    Send Batch Notifications
+                    </button>
+                )}
+
+                {/* Logout Button */}
+                <button
+                    onClick={() => {
                     localStorage.removeItem("user");
                     localStorage.removeItem("role");
                     window.location.href = "/login";
-                }}
-                className="text-sm px-3 py-1 rounded bg-red-500 text-white"
-            >
-                Logout
-            </button>
+                    }}
+                    className="text-sm px-3 py-1 rounded bg-red-500 text-white"
+                >
+                    Logout
+                </button>
+            </div>
           </header>
 
 

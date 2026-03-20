@@ -7,7 +7,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login"; 
-import AdminPanel from "./pages/Admin.tsx";
 
 const queryClient = new QueryClient();
 
@@ -55,7 +54,7 @@ const App = () => {
             <Route
               path="/admin"
               element={
-                user
+                user && role === "admin"
                   ? <Index username={user} isAdmin={true} />
                   : <Navigate to="/login" />
               }
