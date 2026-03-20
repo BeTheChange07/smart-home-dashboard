@@ -476,7 +476,7 @@ export function useSmartHome() {
       }));
 
 
-      addEvent(`Changed by user`, deviceId);
+      await fetchBackendState();
 
     } catch (err) {
       console.error("Failed to toggle device:", err);
