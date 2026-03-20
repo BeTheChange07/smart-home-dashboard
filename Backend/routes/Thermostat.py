@@ -30,6 +30,7 @@ def Thermostat(method, argsDict):
 
             # Toggle the state
             jsonCatagory["State"] = not jsonCatagory["State"]
+            thermoPrio = jsonCatagory["Prio"]
 
             # Update temp if provided, otherwise keep current
             try:
@@ -38,9 +39,9 @@ def Thermostat(method, argsDict):
                 pass  # no temp argument is fine, just toggle state
 
             try:
-                helper.createLogInstance(argsDict["Reason"], "Thermostat")
+                helper.createLogInstance(argsDict["Reason"], "Thermostat", thermoPrio)
             except:
-                helper.createLogInstance("No reason given", "Thermostat")
+                helper.createLogInstance("No reason given", "Thermostat", thermoPrio)
 
 
             with open("state.json", "w") as writefile:

@@ -1,5 +1,65 @@
 [
     {
+        "id": "14cf2252-2484-11f1-b609-f02f74d10233",
+        "time": "March 20 2026 12 41 52",
+        "message": "This-is-The-Reason",
+        "deviceID": "CoffeeMachine"
+    },
+    {
+        "id": "049a6f50-2484-11f1-ae30-f02f74d10233",
+        "time": "March 20 2026 12 41 25",
+        "message": "This-is-The-Reason",
+        "deviceID": "CoffeeMachine"
+    },
+    {
+        "id": "f6556490-2483-11f1-8467-f02f74d10233",
+        "time": "March 20 2026 12 41 01",
+        "message": "This-is-The-Reason",
+        "deviceID": "CoffeeMachine"
+    },
+    {
+        "id": "f0d6363f-2483-11f1-b900-f02f74d10233",
+        "time": "March 20 2026 12 40 52",
+        "message": "This-is-The-Reason",
+        "deviceID": "CoffeeMachine"
+    },
+    {
+        "id": "dfaf77f3-2483-11f1-aa91-f02f74d10233",
+        "time": "March 20 2026 12 40 23",
+        "message": "This-is-The-Reason",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "c3e414d9-2483-11f1-9033-f02f74d10233",
+        "time": "March 20 2026 12 39 37",
+        "message": "No reason given",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "8f7de94b-2483-11f1-b4c0-f02f74d10233",
+        "time": "March 20 2026 12 38 09",
+        "message": "No reason given",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "8d7a58d4-2483-11f1-91f1-f02f74d10233",
+        "time": "March 20 2026 12 38 05",
+        "message": "No reason given",
+        "deviceID": "Thermostat"
+    },
+    {
+        "id": "3b785811-2483-11f1-aeb6-f02f74d10233",
+        "time": "March 20 2026 12 35 48",
+        "message": "This-is-The-Reason",
+        "deviceID": "CoffeeMachine"
+    },
+    {
+        "id": "391b8e74-2483-11f1-9d5e-f02f74d10233",
+        "time": "March 20 2026 12 35 44",
+        "message": "This-is-The-Reason",
+        "deviceID": "CoffeeMachine"
+    },
+    {
         "id": "9b5443ba-2418-11f1-beed-e865389374d4",
         "time": "March 19 2026 23 52 32",
         "message": "Changed by user",
@@ -238,65 +298,5 @@
         "time": "March 19 2026 22 47 16",
         "message": "Changed by user",
         "deviceID": "Lights-Kitchen"
-    },
-    {
-        "id": "7c5c11a5-240f-11f1-94b1-e865389374d4",
-        "time": "March 19 2026 22 47 15",
-        "message": "Changed by user",
-        "deviceID": "Locks-FrontDoor"
-    },
-    {
-        "id": "7c054f89-240f-11f1-b7f5-e865389374d4",
-        "time": "March 19 2026 22 47 14",
-        "message": "Changed by user",
-        "deviceID": "CoffeeMachine"
-    },
-    {
-        "id": "7b624fce-240f-11f1-91f5-e865389374d4",
-        "time": "March 19 2026 22 47 13",
-        "message": "Changed by user",
-        "deviceID": "SmartPlugs-Bedroom"
-    },
-    {
-        "id": "7af2af91-240f-11f1-9543-e865389374d4",
-        "time": "March 19 2026 22 47 13",
-        "message": "Changed by user",
-        "deviceID": "FrontDoorCam"
-    },
-    {
-        "id": "7aabf7f2-240f-11f1-8b8f-e865389374d4",
-        "time": "March 19 2026 22 47 12",
-        "message": "Changed by user",
-        "deviceID": "GarageDoor"
-    },
-    {
-        "id": "7a114ef6-240f-11f1-adc0-e865389374d4",
-        "time": "March 19 2026 22 47 11",
-        "message": "Changed by user",
-        "deviceID": "Lights-LivingRoom"
-    },
-    {
-        "id": "7734ca1a-240f-11f1-8471-e865389374d4",
-        "time": "March 19 2026 22 47 06",
-        "message": "Changed by user",
-        "deviceID": "Lights-Bedroom"
-    },
-    {
-        "id": "76915a39-240f-11f1-9368-e865389374d4",
-        "time": "March 19 2026 22 47 05",
-        "message": "Changed by user",
-        "deviceID": "Lights-Bedroom"
-    },
-    {
-        "id": "74c6c4e4-240f-11f1-ade2-e865389374d4",
-        "time": "March 19 2026 22 47 02",
-        "message": "Changed by user",
-        "deviceID": "Lights-Bedroom"
-    },
-    {
-        "id": "72ec1c25-240f-11f1-9dfd-e865389374d4",
-        "time": "March 19 2026 22 46 59",
-        "message": "Changed by user",
-        "deviceID": "Lights-Bedroom"
     }
 ]
