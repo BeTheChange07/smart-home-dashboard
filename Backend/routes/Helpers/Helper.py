@@ -2,7 +2,8 @@ import json
 from filelock import Timeout, FileLock
 import time, datetime, uuid
 
-from routes.Helpers.Discord import sendDiscordNotification
+
+from routes.Helpers.Discord import sendDiscordNotification, sendMulitpleDiscordMessages
 
 #this is the lockfile definition to ensure we dont corrupt the file trying to 
 #write to it if accessed too many times
@@ -139,3 +140,24 @@ def createBatchLine(reason, deviceID, timestamp):
     file = open("./textFiles/batchMessage.txt", 'a')
     file.write(reason + "," + deviceID + "," + timestamp + "\n")
     file.close()
+
+#sends all of the batched lines all at once
+def sendBatchLines():
+    file = open("./textFiles/batchMessage.txt", 'r')
+    splitLineArr = []
+    for line in file:
+        splitLine = line.split(",")
+        splitLineArr.append({"name": "Device", "value": splitLine[1], "inline": True})
+        splitLineArr.append({"name": "Reason", "value": splitLine[0], "inline": True})
+        splitLineArr.append({"name": "Time", "value": splitLine[2], "inline": False})
+        splitLine.clear()
+    sendMulitpleDiscordMessages(splitLineArr)
+
+    # reopens the file to remove the batch jobs
+    file.close()
+    file = open("./textFiles/batchMessage.txt", 'w')
+    file.close()
+
+    return "Completed"
+        
+        

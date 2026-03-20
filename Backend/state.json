@@ -39,22 +39,22 @@
     ],
     "Thermostat": {
         "State": true,
-        "CurrentTemp": 75,
+        "CurrentTemp": "78",
         "Prio": 2
     },
     "CoffeeMachine": {
         "State": true,
-        "Prio": 2
+        "Prio": 1
     },
     "FrontDoorCam": {
         "State": true,
-        "Prio": 2
+        "Prio": 0
     },
     "SmartPlugs": [
         {
             "Id": "LivingRoom",
             "State": true,
-            "Prio": 2
+            "Prio": 0
         },
         {
             "Id": "Kitchen",

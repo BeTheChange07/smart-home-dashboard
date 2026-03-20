@@ -450,10 +450,10 @@ export function useSmartHome() {
     // Send the PATCH request to Flask, which toggles the state in state.json
     try {
       const device = devices.find(d => d.id === deviceId);
-      const res = await fetch(url, {
+      const res = await fetch(url + "?Reason=" + "Changed by user", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Reason: `Changed by user` }),
+        // body: JSON.stringify({ Reason: `Changed by user` }),
       });
       const newState = await res.text(); // Flask returns "True" or "False" as a string
 

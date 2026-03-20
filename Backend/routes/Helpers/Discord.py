@@ -26,3 +26,18 @@ def sendDiscordNotification(reason, deviceId, timestamp):
         requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
     except Exception as e:
         print(f"Discord notification failed: {e}")
+
+def sendMulitpleDiscordMessages(maessageArr):
+    payload = {
+        "embeds": [
+            {
+                "title": "Smart Home Batch Events",
+                "color": 3447003,
+                "fields": maessageArr
+            }
+        ]
+    }
+    try:
+        requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
+    except Exception as e:
+        print(f"Discord notification failed: {e}")

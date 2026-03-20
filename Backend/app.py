@@ -8,7 +8,8 @@ import json
 from flask_cors import CORS
 
 #importing functions from respective file
-from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, FrontDoorCam, SmarPlug, Events
+from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, \
+    FrontDoorCam, SmarPlug, Events, Batch, Prio
 
 
 
@@ -22,39 +23,39 @@ def working():
 
 @app.route("/locks/<name>", methods=["GET", "PATCH"])
 def locks(name):
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return Locks.Locks(request.method, name, argDict)
 
 @app.route("/garage", methods=["GET", "PATCH"])
 def garage():
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return Garage.Garage(request.method, argDict)
 
 @app.route("/lights/<name>", methods=["GET", "PATCH"])
 def lights(name):
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return Lights.Lights(request.method, name, argDict)
 
 @app.route("/thermostat", methods=["GET", "PATCH"])
 def thermostat():
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return Thermostat.Thermostat(request.method, argDict)
 
 
 @app.route("/coffeeMachine", methods=["GET", "PATCH"])
 def coffeMachine():
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return CoffeMachine.CoffeMachine(request.method, argDict)
 
 
 @app.route("/frontDoorCam", methods=["GET", "PATCH"])
 def frontDoorCam():
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return FrontDoorCam.FrontDoorCam(request.method, argDict)
 
 @app.route("/smartPlug/<name>", methods=["GET", "PATCH"])
 def smartPlug(name):
-    argDict = request.get_json() if request.method == "PATCH" else request.args
+    argDict = request.args
     return SmarPlug.SmartPlug(request.method, name, argDict)
 
 #get all states of the state.json
@@ -67,8 +68,14 @@ def get_full_state():
 def events():
     return Events.Events(request.method)
 
+@app.route("/batch", methods=["GET"])
+def batch():
+    return Batch.Batch(request.method)
 
-
+@app.route("/prio", methods=["PATCH"])
+def prio():
+    argDict = request.args
+    return Prio.Prio(request.method, argDict)
 
 #dont worry about this its only for production
 if __name__ == '__main__':

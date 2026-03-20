@@ -34,7 +34,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
-  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/locks/name?Reason=message
+  -Also requires a reason url argument in the form of a string . It is put into the url as such: baseURL:port/locks/name?Reason=message
 
 ## "/garage"
 
@@ -49,7 +49,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
-  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/garage?Reason=message
+  -Also requires a reason url argument in the form of a string . It is put into the url as such: baseURL:port/garage?Reason=message
 
 ## "/lights/name"
 
@@ -64,7 +64,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
-  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/lights/name?Reason=message
+  -Also requires a reason url argument in the form of a string . It is put into the url as such: baseURL:port/lights/name?Reason=message
 
 ## "/thermostat"
 
@@ -94,7 +94,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
-  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/coffeeMachine?Reason=message
+  -Also requires a reason url argument in the form of a string . It is put into the url as such: baseURL:port/coffeeMachine?Reason=message
 
 ## "/frontDoorCam"
 
@@ -109,7 +109,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
-  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/frontDoorCam?Reason=message
+  -Also requires a reason url argument in the form of a string . It is put into the url as such: baseURL:port/frontDoorCam?Reason=message
 
 ## "/smartPlug/name"
 
@@ -124,7 +124,7 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### patch
 
 - Patch will flip the status of the named entity (see above for corespondance of T/F)
-  -Also requires a reason url argument in the form of a string WITHOUT SPACES for exampele "This-is-the-message". It is put into the url as such: baseURL:port/smartPlug/name?Reason=message
+  -Also requires a reason url argument in the form of a string . It is put into the url as such: baseURL:port/smartPlug/name?Reason=message
 
 ## "/state"
 
@@ -137,3 +137,21 @@ For testing just use the "flask run" command in the "Backend" Directory to start
 ### get
 
 - returns the last 50 events from the events.json
+
+## "/batch"
+
+### get
+
+- Sends all batched mesasges at once to the discord returns completed when completed
+
+## "/prio"
+
+### patch
+
+- Change the priority of a state object. This action IS NOT LOGGED
+- takes in two URL perams:
+- category: this is either the name of the entity for bianary entities or the name of the category for multi entities like smartplugs
+- name: this is only used if there is a named entity like smartplug, livingRoom
+- requests should be formated like this for the single Bianary entities: baseURL:port/prio?prio=newPrio&?category=category
+- they should be formated like this for the named entities: baseURL:port/prio?prio=newPrio&?category=category&name=name
+- this is where prio is a int and category and name are stirngs
