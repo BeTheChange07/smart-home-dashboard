@@ -141,6 +141,7 @@ const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: bool
                               events={sm.events}
                               onClose={() => setSelectedDevice(null)}
                               onWhatIf={sm.simulateWhatIf}
+                              onSetPriority={sm.setNotificationPriority}
                           />
                       ) : (
                           <div

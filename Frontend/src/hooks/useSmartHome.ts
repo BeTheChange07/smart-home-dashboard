@@ -88,6 +88,7 @@ export interface EventLog {
   message: string;               // "Lights turned ON — welcome mode"
   deviceId?: string;             // which device this event is about
   explanation?: Explanation;     // optional XAI explanation attached to this event
+  priority?: "LOW" | "MED" | "HIGH";
 }
 
 // A user-facing notification (more prominent than an event log entry)
@@ -192,11 +193,18 @@ export function useSmartHome() {
 
 
   // This will now log events to the event.json file in the backend.
-  const addEvent = useCallback((message: string, deviceId?: string, explanation?: Explanation) => {
-    const event = { id: uid(), time: now(), message, deviceId, explanation };
+  const addEvent = useCallback((message: string, deviceId?: string, explanation?: Explanation, priority: "LOW" | "MED" | "HIGH" = "LOW") => {
+    const event = { id: uid(), time: now(), message, deviceId, explanation, priority};
     setEvents(prev => [event, ...prev].slice(0, 50));
     setLastUpdate(now());
-  }, []);
+    fetch("http://localhost:5000/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(event),
+      }).catch(err => console.error("Failed to log event:", err));
+    },
+    []
+  );
 
 
 
@@ -205,6 +213,19 @@ export function useSmartHome() {
   const addNotification = useCallback((n: Omit<Notification, "id" | "time">) => {
     setNotifications(prev => [{ ...n, id: uid(), time: now() }, ...prev].slice(0, 20));
   }, []);
+
+  const setNotificationPriority = useCallback(
+    (deviceId: string, priority: "LOW" | "MED" | "HIGH") => {
+      setEvents(prev =>
+        prev.map(e =>
+          e.deviceId === deviceId
+            ? { ...e, priority }
+            : e
+        )
+      );
+    },
+    []
+  );
 
   // ---- HELPER: SAVE SNAPSHOT ----
   // Deep-copies the current device states into replayHistory.
@@ -792,7 +813,7 @@ export function useSmartHome() {
   return {
     homeStatus, temperature,  lastUpdate,
     devices, events, notifications, trustScore, replayHistory,
-    toggleDevice
+    toggleDevice, setNotificationPriority
 
     // simulateLeaving, simulateMotion, simulateTempChange, simulateGarage, simulateArrive,
     // simulateWhatIf, restoreSnapshot,
