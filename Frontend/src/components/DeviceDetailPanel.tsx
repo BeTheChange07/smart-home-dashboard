@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ScrollArea } from "@/components/ui/scroll-area";
+//import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Activity, HelpCircle, Bell } from "lucide-react";
 import ExplanationPanel from "./ExplanationPanel";
 import type { DeviceState, EventLog } from "@/hooks/useSmartHome";
@@ -17,14 +17,13 @@ export default function DeviceDetailPanel({ device, events, onClose, onWhatIf, o
   const [showExplanation, setShowExplanation] = useState(false);
   //const deviceEvents = events.filter(e => e.deviceId === device.id).slice(0, 10);
   //const confColor = device.confidence > 0.9 ? "text-success" : device.confidence > 0.7 ? "text-warning" : "text-destructive";
-  const [priority, setPriority] = useState<"LOW" | "MED" | "HIGH">("LOW");
+  const prioLabels: Record<number, "LOW" | "MED" | "HIGH"> = { 0: "LOW", 1: "MED", 2: "HIGH" };
+  const priority = prioLabels[device.priority] ?? "LOW";
 
   const deviceEvents = events
-    .filter(e => e.deviceId === device.id)
-    .slice(0, 10);
+      .filter(e => e.deviceId === device.id);
 
   const handlePriority = (p: "LOW" | "MED" | "HIGH") => {
-    setPriority(p);
     onSetPriority?.(device.id, p);
   };
 
@@ -117,27 +116,28 @@ export default function DeviceDetailPanel({ device, events, onClose, onWhatIf, o
           <Activity size={12} className="text-primary" />
           <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground">Recent Events</h4>
         </div>
-        <ScrollArea className="max-h-[160px]">
+        <div className="max-h-[280px] overflow-y-auto">
           {deviceEvents.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-3">No recent events</p>
+              <p className="text-xs text-muted-foreground text-center py-3">No recent events</p>
           ) : (
-            <div className="space-y-1">
-              {deviceEvents.map(e => (
-                <div key={e.id} className="flex gap-2 text-xs py-1 border-b border-border/30 last:border-0">
-                  <span className="font-mono text-muted-foreground shrink-0">{e.time}</span>
-                  <span className="text-foreground">{e.message}</span>
-                </div>
-              ))}
-            </div>
+              <div className="space-y-1">
+                {deviceEvents.map(e => (
+                    <div key={e.id}
+                         className="flex flex-col gap-0.5 text-[11px] py-1.5 border-b border-border/30 last:border-0">
+                      <span className="font-mono text-muted-foreground">{e.time}</span>
+                      <span className="text-foreground">{e.message}</span>
+                    </div>
+                ))}
+              </div>
           )}
-        </ScrollArea>
+        </div>
       </div>
 
       {/* EXPLANATION BUTTON */}
       {device.lastExplanation && (
-        <>
-          <button
-            onClick={() => setShowExplanation(!showExplanation)}
+          <>
+            <button
+                onClick={() => setShowExplanation(!showExplanation)}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-xs text-primary"
           >
             <HelpCircle size={14} />

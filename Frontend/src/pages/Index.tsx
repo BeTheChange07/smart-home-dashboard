@@ -17,7 +17,7 @@ import ReplayControls from "@/components/ReplayControls";
 
 
 const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: boolean }) => {
-  const sm = useSmartHome();
+  const sm = useSmartHome(username);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
 
   const selected = sm.devices.find(d => d.id === selectedDevice);
@@ -91,14 +91,14 @@ const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: bool
       </div>
         */}
 
-          <div className="mt-4">
-              <HomeOverview
-                  homeStatus={sm.homeStatus}
-                  temperature={sm.temperature}
-                  automationActive={true}
-                  lastUpdate={sm.lastUpdate}
-              />
-          </div>
+          <HomeOverview
+              homeStatus={sm.homeStatus}
+              temperature={sm.temperature}
+              setTemp={sm.setTemp}
+              automationActive={true}
+              lastUpdate={sm.lastUpdate}
+              onTempChange={sm.changeThermostatTemp}
+          />
 
           {/* Simulation Controls */}
           {/*
@@ -140,7 +140,7 @@ const Index = ({ username, isAdmin = false }: { username: string; isAdmin?: bool
                               device={selected}
                               events={sm.events}
                               onClose={() => setSelectedDevice(null)}
-                              onWhatIf={sm.simulateWhatIf}
+                              //onWhatIf={sm.simulateWhatIf}
                               onSetPriority={sm.setNotificationPriority}
                           />
                       ) : (

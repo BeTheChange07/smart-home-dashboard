@@ -68,17 +68,18 @@ export interface Explanation {
 
 // Represents a single smart home device (light, thermostat, lock, etc.)
 export interface DeviceState {
-  id: string;                       // unique device ID like "lights", "thermostat"
-  name: string;                     // display name like "Living Room Lights"
+  id: string;
+  name: string;
   type: "light" | "thermostat" | "garage" | "alarm" | "camera" | "coffee" | "plug" | "lock";
-  icon: string;                     // icon name for the UI (maps to lucide-react icons)
-  state: boolean;                   // ON (true) or OFF (false)
-  detail: string;                   // status text like "Warm White", "72°F", "Locked"
-  extra?: Record<string, string | number>;  // additional data like { brightness: 80 }
-  confidence: number;               // how confident the system is in this device's state
+  icon: string;
+  state: boolean;
+  detail: string;
+  extra?: Record<string, string | number>;
+  confidence: number;
   confidenceLabel: string;
-  lastExplanation?: Explanation;    // the most recent explanation for this device's action
-  sensorInputs: SensorInput[];     // the sensors feeding data to this device
+  lastExplanation?: Explanation;
+  sensorInputs: SensorInput[];
+  priority: 0 | 1 | 2;
 }
 
 // A single entry in the event log (history of what happened)
@@ -156,7 +157,7 @@ const makeExplanation = (
 // that components call when buttons are pressed.
 // =============================================================================
 
-export function useSmartHome() {
+export function useSmartHome(username?: string) {
 
   // ---- STATE VARIABLES ----
   // These are the reactive values that the UI reads from and displays.
@@ -164,6 +165,7 @@ export function useSmartHome() {
 
   const [homeStatus, setHomeStatus] = useState<"Home" | "Away">("Home");  // is the user home or away?
   const [temperature, setTemperature] = useState(72);                      // current thermostat temp
+  const [setTemp, setSetTemp] = useState(72);
   //const [automationActive, setAutomationActive] = useState(true);          // are automations enabled?
   const [lastUpdate, setLastUpdate] = useState(now());                     // timestamp of last change
   const [devices, setDevices] = useState<DeviceState[]>([]);                // the 8 devices and their states from json file
@@ -210,21 +212,57 @@ export function useSmartHome() {
 
   // ---- HELPER: ADD NOTIFICATION ----
   // Adds a user-facing notification. Keeps max 20.
-  const addNotification = useCallback((n: Omit<Notification, "id" | "time">) => {
-    setNotifications(prev => [{ ...n, id: uid(), time: now() }, ...prev].slice(0, 20));
-  }, []);
-
   const setNotificationPriority = useCallback(
-    (deviceId: string, priority: "LOW" | "MED" | "HIGH") => {
-      setEvents(prev =>
-        prev.map(e =>
-          e.deviceId === deviceId
-            ? { ...e, priority }
-            : e
-        )
-      );
-    },
-    []
+      async (deviceId: string, priority: "LOW" | "MED" | "HIGH") => {
+        // Map frontend priority labels to backend Prio integers
+        const prioMap: Record<string, number> = { LOW: 0, MED: 1, HIGH: 2 };
+        const prioInt = prioMap[priority];
+
+        // Figure out the category and name for the backend /prio endpoint
+        let category = "";
+        let name = "";
+
+        if (deviceId.startsWith("Lights-")) {
+          category = "Lights";
+          name = deviceId.replace("Lights-", "");
+        } else if (deviceId.startsWith("Locks-")) {
+          category = "Locks";
+          name = deviceId.replace("Locks-", "");
+        } else if (deviceId.startsWith("SmartPlugs-")) {
+          category = "SmartPlugs";
+          name = deviceId.replace("SmartPlugs-", "");
+        } else if (deviceId === "Thermostat") {
+          category = "Thermostat";
+        } else if (deviceId === "GarageDoor") {
+          category = "GarageDoor";
+        } else if (deviceId === "CoffeeMachine") {
+          category = "CoffeeMachine";
+        } else if (deviceId === "FrontDoorCam") {
+          category = "FrontDoorCam";
+        }
+
+        // Build the query string for the backend
+        let queryStr = `?category=${category}&prio=${prioInt}`;
+        if (name) {
+          queryStr += `&name=${name}`;
+        }
+
+        try {
+          await fetch(`${API_URL}/prio${queryStr}`, { method: "PATCH" });
+
+          // Update local device state to reflect the new priority
+          setDevices(prev =>
+              prev.map(d =>
+                  d.id === deviceId
+                      ? { ...d, priority: prioInt as 0 | 1 | 2 }
+                      : d
+              )
+          );
+        } catch (err) {
+          console.error("Failed to update priority:", err);
+        }
+      },
+      []
   );
 
   // ---- HELPER: SAVE SNAPSHOT ----
@@ -255,6 +293,7 @@ export function useSmartHome() {
           confidence: 0.92,
           confidenceLabel: "High",
           sensorInputs: [makeSensor(`motion_${light.Id}`, `${light.Id} Motion`, light.State ? 0.9 : 0, "occupancy")],
+          priority: light.Prio ?? 0,
         });
       }
 
@@ -269,12 +308,14 @@ export function useSmartHome() {
           icon: "Thermometer",
           state: data.Thermostat.State,
           detail: `${data.Thermostat.CurrentTemp}°F`,
-          extra: { temp: data.Thermostat.CurrentTemp, mode: "Normal" },
+          extra: { temp: data.Thermostat.CurrentTemp, setTemp: data.Thermostat.SetTemp, mode: "Normal" },
           confidence: 0.95,
           confidenceLabel: "Very High",
           sensorInputs: [makeSensor("temp_indoor", "Indoor Temp Sensor", data.Thermostat.CurrentTemp, "°F")],
+          priority: data.Thermostat.Prio ?? 0,
         });
         setTemperature(data.Thermostat.CurrentTemp);
+        setSetTemp(data.Thermostat.SetTemp);
       }
 
       // data.GarageDoor is a single object: {State: false}
@@ -289,6 +330,7 @@ export function useSmartHome() {
           confidence: 0.98,
           confidenceLabel: "Very High",
           sensorInputs: [makeSensor("garage_sensor", "Garage Door Sensor", data.GarageDoor.State ? "open" : "closed", "")],
+          priority: data.GarageDoor.Prio ?? 0,
         });
       }
 
@@ -304,6 +346,7 @@ export function useSmartHome() {
           confidence: 0.96,
           confidenceLabel: "Very High",
           sensorInputs: [makeSensor(`lock_${lock.Id}`, `${lock.Id} Lock Sensor`, lock.State ? "locked" : "unlocked", "")],
+          priority: lock.Prio ?? 0,
         });
       }
 
@@ -319,6 +362,7 @@ export function useSmartHome() {
           confidence: 0.88,
           confidenceLabel: "High",
           sensorInputs: [makeSensor("motion_fd", "Front Door Motion", 0, "")],
+          priority: data.FrontDoorCam.Prio ?? 0,
         });
       }
 
@@ -334,6 +378,7 @@ export function useSmartHome() {
           confidence: 0.80,
           confidenceLabel: "Moderate",
           sensorInputs: [makeSensor("water_level", "Water Level", 80, "%")],
+          priority: data.CoffeeMachine.Prio ?? 0,
         });
       }
 
@@ -349,6 +394,7 @@ export function useSmartHome() {
           confidence: 0.90,
           confidenceLabel: "High",
           sensorInputs: [makeSensor(`power_${plug.Id}`, `${plug.Id} Power Draw`, 45, "W")],
+          priority: plug.Prio ?? 0,
         });
       }
 
@@ -503,6 +549,19 @@ export function useSmartHome() {
       console.error("Failed to toggle device:", err);
     }
   }, [devices, addEvent, saveSnapshot]);
+
+// Use to change thermostat temperature after slider is changed on front end.
+  const changeThermostatTemp = useCallback(async (newTemp: number) => {
+    try {
+      await fetch(`${API_URL}/thermostat?Reason=Set+temperature+changed+to+${newTemp}+by+${username ?? "user"}&setTemp=${newTemp}`, {
+        method: "PATCH",
+      });
+      await fetchBackendState();
+    } catch (err) {
+      console.error("Failed to change set temperature:", err);
+    }
+  }, [fetchBackendState]);
+
 
 
   // // ==========================================================================
@@ -811,9 +870,9 @@ export function useSmartHome() {
   //   const { devices, toggleDevice, simulateMotion } = useSmartHome();
   // ==========================================================================
   return {
-    homeStatus, temperature,  lastUpdate,
+    homeStatus, temperature, setTemp, lastUpdate,
     devices, events, notifications, trustScore, replayHistory,
-    toggleDevice, setNotificationPriority
+    toggleDevice, setNotificationPriority, changeThermostatTemp
 
     // simulateLeaving, simulateMotion, simulateTempChange, simulateGarage, simulateArrive,
     // simulateWhatIf, restoreSnapshot,

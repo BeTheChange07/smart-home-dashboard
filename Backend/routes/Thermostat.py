@@ -2,8 +2,6 @@ import routes.Helpers.Helper as helper
 import json
 from filelock import Timeout, FileLock
 
-#this is the lockfile definition to ensure we dont corrupt the file trying to 
-#write to it if accessed too many times
 lock = FileLock("./textFiles/locks/state.json.lock")
 
 def Thermostat(method, argsDict):
@@ -15,9 +13,10 @@ def Thermostat(method, argsDict):
             try:
                 stateStr = str(jsonCatagory["State"])
                 tempStr = str(jsonCatagory["CurrentTemp"])
+                setTempStr = str(jsonCatagory["SetTemp"])
             except:
                 return "Name mismatch"
-            return stateStr + "," + tempStr
+            return stateStr + "," + tempStr + "," + setTempStr
 
     elif(method == "PATCH"):
         with lock:
@@ -28,24 +27,25 @@ def Thermostat(method, argsDict):
             except:
                 return "Name mismatch"
 
-            # Toggle the state
-            jsonCatagory["State"] = not jsonCatagory["State"]
             thermoPrio = jsonCatagory["Prio"]
 
-            # Update temp if provided, otherwise keep current
-            try:
-                jsonCatagory["CurrentTemp"] = argsDict["temp"]
-            except:
-                pass  # no temp argument is fine, just toggle state
+            # If setTemp is provided, update the target temperature
+            if "setTemp" in argsDict:
+                jsonCatagory["SetTemp"] = int(argsDict["setTemp"])
+            # If temp is provided, update the current temperature
+            elif "temp" in argsDict:
+                jsonCatagory["CurrentTemp"] = int(argsDict["temp"])
+            # If neither, toggle on/off state
+            else:
+                jsonCatagory["State"] = not jsonCatagory["State"]
 
             try:
                 helper.createLogInstance(argsDict["Reason"], "Thermostat", thermoPrio)
             except:
                 helper.createLogInstance("No reason given", "Thermostat", thermoPrio)
 
-
             with open("state.json", "w") as writefile:
                 json.dump(jsonData, writefile, indent=4)
-            return str(jsonCatagory["State"]) + "," + str(jsonCatagory["CurrentTemp"])
+            return str(jsonCatagory["State"]) + "," + str(jsonCatagory["CurrentTemp"]) + "," + str(jsonCatagory["SetTemp"])
 
     return "Please use a supported method"

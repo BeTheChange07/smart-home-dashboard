@@ -2,6 +2,10 @@
 from dotenv import load_dotenv
 load_dotenv(".env")
 
+
+from filelock import FileLock
+state_lock = FileLock("./textFiles/locks/state.json.lock")
+
 from flask import Flask, request
 import os
 import json
@@ -11,11 +15,15 @@ from flask_cors import CORS
 from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, \
     FrontDoorCam, SmarPlug, Events, Batch, Prio
 
+from routes.Helpers.Scheduler import scheduler
 
 
 app = Flask("HCIBackend")
 CORS(app)
 
+#start scheduler for batch messages
+scheduler.init_app(app)
+scheduler.start()
 
 @app.route("/")
 def working():
@@ -61,8 +69,9 @@ def smartPlug(name):
 #get all states of the state.json
 @app.route("/state", methods=["GET"])
 def get_full_state():
-    with open("state.json", "r") as f:
-        return json.load(f)
+    with state_lock:
+        with open("state.json", "r") as f:
+            return json.load(f)
 
 @app.route("/events", methods=["GET", "PATCH"])
 def events():
