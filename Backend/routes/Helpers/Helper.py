@@ -2,16 +2,16 @@ import json
 from filelock import Timeout, FileLock
 import time, datetime, uuid
 
-
+from routes.Helpers.PushNotification import send_instant_push, send_batch_push
 from routes.Helpers.Discord import sendDiscordNotification, sendMulitpleDiscordMessages
 
-#this is the lockfile definition to ensure we dont corrupt the file trying to 
+#this is the lockfile definition to ensure we dont corrupt the file trying to
 #write to it if accessed too many times
 stateLock = FileLock("./textFiles/locks/state.json.lock")
 eventLock = FileLock("./textFiles/locks/event.json.lock")
 
 #this function takes the title af the JSON object and the name of the specific
-#object that you are looking for. It will either return the object state or return an 
+#object that you are looking for. It will either return the object state or return an
 # error message if nothing is found
 
 #inputs:
@@ -56,7 +56,7 @@ def changeStateFileNamedEntity(category: str, name: str, argsDict):
         return "name not found"
 
 
-#this function takes the title of a JSON object 
+#this function takes the title of a JSON object
 #object that you are looking to for. It will either return the state of
 #of the object or it will return an error message
 
@@ -72,7 +72,7 @@ def checkStateFileSingleBianaryEntity(category: str):
         except:
             return "Name Mismatch"
 
-        
+
 
 #this function takes the title of a JSON object of the specific
 #object that you are looking to update. It will either return the new state of
@@ -102,7 +102,7 @@ def changeStateFileSingleBianaryEntity(category: str, argsDict):
             createLogInstance("No Reason Provided", category, itemPrio)
 
         return str(jsonCatagory["State"])
-    
+
 
 #this function creates a log instance for a event
 def createLogInstance(reason, deviceId, priority):
@@ -128,13 +128,13 @@ def createLogInstance(reason, deviceId, priority):
         with open("events.json", "w") as f:
             json.dump(events, f, indent=4)
 
-    # send discord notification for prio 2 and batches lies for prio 1 does nothing for prio 0
-    match priority:  
+    # send discord and instant notification for prio 2 and batches lies for prio 1 does nothing for prio 0
+    match priority:
         case 1:
             createBatchLine(reason, deviceId, timestamp)
         case 2:
             sendDiscordNotification(reason, deviceId, timestamp)
-
+            send_instant_push(reason, deviceId, timestamp)
 
 def createBatchLine(reason, deviceID, timestamp):
     file = open("./textFiles/batchMessage.txt", 'a')
@@ -145,19 +145,30 @@ def createBatchLine(reason, deviceID, timestamp):
 def sendBatchLines():
     file = open("./textFiles/batchMessage.txt", 'r')
     splitLineArr = []
+    batchPushLines = []
     for line in file:
-        splitLine = line.split(",")
+        splitLine = line.strip().split(",")
+        if len(splitLine) < 3:
+            continue
         splitLineArr.append({"name": "Device", "value": splitLine[1], "inline": True})
         splitLineArr.append({"name": "Reason", "value": splitLine[0], "inline": True})
         splitLineArr.append({"name": "Time", "value": splitLine[2], "inline": False})
-        splitLine.clear()
-    sendMulitpleDiscordMessages(splitLineArr)
 
-    # reopens the file to remove the batch jobs
+        batchPushLines.append({
+            "reason": splitLine[0],
+            "deviceID": splitLine[1],
+            "timestamp": splitLine[2],
+        })
+
+    if splitLineArr:
+        sendMulitpleDiscordMessages(splitLineArr)
+
+    if batchPushLines:
+        send_batch_push(batchPushLines)
+
     file.close()
     file = open("./textFiles/batchMessage.txt", 'w')
     file.close()
 
     return "Completed"
-        
-        
+

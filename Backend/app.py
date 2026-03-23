@@ -11,6 +11,9 @@ import os
 import json
 from flask_cors import CORS
 
+from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, \
+    FrontDoorCam, SmarPlug, Events, Batch, Prio, Push
+
 #importing functions from respective file
 from routes import Locks, Garage, Lights, Thermostat, CoffeMachine, \
     FrontDoorCam, SmarPlug, Events, Batch, Prio
@@ -85,6 +88,10 @@ def batch():
 def prio():
     argDict = request.args
     return Prio.Prio(request.method, argDict)
+
+@app.route("/push/subscribe", methods=["GET", "POST", "DELETE"])
+def push_subscribe():
+    return Push.Push(request.method)
 
 #dont worry about this its only for production
 if __name__ == '__main__':

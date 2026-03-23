@@ -199,7 +199,7 @@ export function useSmartHome(username?: string) {
     const event = { id: uid(), time: now(), message, deviceId, explanation, priority};
     setEvents(prev => [event, ...prev].slice(0, 50));
     setLastUpdate(now());
-    fetch("http://localhost:5000/events", {
+    fetch(`${API_URL}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(event),
@@ -517,7 +517,7 @@ export function useSmartHome(username?: string) {
     // Send the PATCH request to Flask, which toggles the state in state.json
     try {
       const device = devices.find(d => d.id === deviceId);
-      const res = await fetch(url + "?Reason=" + "Changed by user", {
+      const res = await fetch(url + "?Reason=" + encodeURIComponent("Changed by " + (username ?? "user")), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         // body: JSON.stringify({ Reason: `Changed by user` }),
