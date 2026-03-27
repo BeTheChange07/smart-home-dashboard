@@ -1,4 +1,3 @@
-import json
 import routes.Helpers.Helper as helper
 def SmartPlug(method, name, argsDict):
     if(method == "GET"):
