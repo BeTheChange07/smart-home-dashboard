@@ -95,4 +95,4 @@ def push_subscribe():
 
 #dont worry about this its only for production
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=os.getenv("PORT"))
+    app.run(app=app, server="flask", host="0.0.0.0", port=os.getenv("PORT"))
