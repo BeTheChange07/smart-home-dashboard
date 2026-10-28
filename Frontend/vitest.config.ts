@@ -14,7 +14,7 @@ export default defineConfig({
     alias: { "@": path.resolve(__dirname, "./src") },
   },
   server: {
-    allowedHosts: ["hci-project.duckdns.org"],
+    allowedHosts: process.env.VITE_ALLOWED_HOST ? [process.env.VITE_ALLOWED_HOST] : [],
     // ... any other server settings you already have
   },
 });
